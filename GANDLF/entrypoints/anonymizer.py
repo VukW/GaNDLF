@@ -53,7 +53,7 @@ def new_way(input_dir, config, modality, output_file):
 
 # old-fashioned way of running gandlf via `gandlf_anonymizer`.
 @deprecated("This is a deprecated way of running GanDLF. Please, use `gandlf anonymizer` cli command " +
-            "instead of `gandlf_anonymizer`. Note that some params were renamed:\n" +
+            "instead of `gandlf_anonymizer`. Note that in new CLI tool some params were renamed:\n" +
             "  --inputDir to --input-dir\n" +
             "  --outputFile to --output-file\n" +
             "`gandlf_anonymizer` script would be deprecated soon.")

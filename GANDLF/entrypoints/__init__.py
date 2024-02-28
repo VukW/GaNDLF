@@ -1,16 +1,12 @@
-import click
-from functools import update_wrapper
 from GANDLF.cli import copyrightMessage
 
 
 def append_copyright_to_help(command_func):
-    def new_command_func(*args, **kwargs):
-        # used to append copyright message to command help
-        command_func.__doc__ += "\n\n" + copyrightMessage
-
-        return command_func(*args, **kwargs)
-
-    return update_wrapper(new_command_func, command_func)
+    if command_func.__doc__ is None:
+        command_func.__doc__ = copyrightMessage
+    else:
+        command_func.__doc__ += '\n\n' + copyrightMessage
+    return command_func
 
 
 class ParamNamesFilter:

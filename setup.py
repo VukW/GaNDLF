@@ -114,6 +114,7 @@ requirements = [
     "keyring",
     "monai==1.3.0",
     "click",
+    "deprecated",
 ]
 
 if __name__ == "__main__":
@@ -136,7 +137,7 @@ if __name__ == "__main__":
             'console_scripts': [
                 'gandlf=GANDLF.cli_tool:gandlf',
                 # old entrypoints
-                'gandlf_run=GANDLF.entrypoints.run:main',
+                'gandlf_run=GANDLF.entrypoints.run:old_way',
                 'gandlf_constructCSV=GANDLF.entrypoints.constructCSV:main',
                 'gandlf_collectStats=GANDLF.entrypoints.collectStats:main',
                 'gandlf_patchMiner=GANDLF.entrypoints.patchMiner:main',
