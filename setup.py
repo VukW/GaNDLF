@@ -113,6 +113,7 @@ requirements = [
     "zarr",
     "keyring",
     "monai==1.3.0",
+    "click",
 ]
 
 if __name__ == "__main__":
@@ -133,12 +134,14 @@ if __name__ == "__main__":
         },
         entry_points={
             'console_scripts': [
+                'gandlf=GANDLF.cli_tool:gandlf',
+                # old entrypoints
                 'gandlf_run=GANDLF.entrypoints.run:main',
                 'gandlf_constructCSV=GANDLF.entrypoints.constructCSV:main',
                 'gandlf_collectStats=GANDLF.entrypoints.collectStats:main',
                 'gandlf_patchMiner=GANDLF.entrypoints.patchMiner:main',
                 'gandlf_preprocess=GANDLF.entrypoints.preprocess:main',
-                'gandlf_anonymizer=GANDLF.entrypoints.anonymizer:main',
+                'gandlf_anonymizer=GANDLF.entrypoints.anonymizer:old_way',
                 'gandlf_verifyInstall=GANDLF.entrypoints.verifyInstall:main',
                 'gandlf_configGenerator=GANDLF.entrypoints.configGenerator:main',
                 'gandlf_recoverConfig=GANDLF.entrypoints.recoverConfig:main',
