@@ -5,6 +5,7 @@ import click
 from GANDLF.entrypoints import append_copyright_to_help
 from GANDLF.entrypoints.anonymizer import new_way as anonymizer_command
 from GANDLF.entrypoints.run import new_way as run_command
+from GANDLF.entrypoints.constructCSV import new_way as construct_csv_command
 from GANDLF import version
 
 
@@ -27,6 +28,7 @@ def gandlf(ctx, loglevel):
 
 gandlf.add_command(anonymizer_command, 'anonymizer')
 gandlf.add_command(run_command, 'run')
+gandlf.add_command(construct_csv_command, 'construct-csv')
 
 if __name__ == '__main__':
     gandlf()
