@@ -139,7 +139,7 @@ if __name__ == "__main__":
                 # old entrypoints
                 'gandlf_run=GANDLF.entrypoints.run:old_way',
                 'gandlf_constructCSV=GANDLF.entrypoints.constructCSV:old_way',
-                'gandlf_collectStats=GANDLF.entrypoints.collectStats:main',
+                'gandlf_collectStats=GANDLF.entrypoints.collectStats:old_way',
                 'gandlf_patchMiner=GANDLF.entrypoints.patchMiner:main',
                 'gandlf_preprocess=GANDLF.entrypoints.preprocess:main',
                 'gandlf_anonymizer=GANDLF.entrypoints.anonymizer:old_way',
