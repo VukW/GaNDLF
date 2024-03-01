@@ -55,11 +55,11 @@ def _construct_csv(
 
 
 @click.command()
-@click.option('--input-dir', '-i',  # TODO: renamed from --inputDir
+@click.option('--input-dir', '-i',
               required=True,
               type=click.Path(exists=True, file_okay=False, dir_okay=True),
               help="Input data directory which contains images in specified format")
-@click.option('--channels-id', '-c',  # TODO: renamed from --channelsID
+@click.option('--channels-id', '-c',
               required=True,
               help="Channels/modalities identifier string to check for in all files in 'input_dir'; "
                    "for example: --channels-id _t1.nii.gz,_t2.nii.gz",
@@ -68,11 +68,11 @@ def _construct_csv(
               type=str,
               help="Label/mask identifier string to check for in all files in 'input_dir'; "
                    "for example: --label-id _seg.nii.gz")
-@click.option('--output-file', '-o',  # TODO: renamed from --outputFile
+@click.option('--output-file', '-o',
               required=True,
               type=click.Path(file_okay=True, dir_okay=False),
               help="Output CSV file")
-@click.option('--relativize-paths', '-r',  # TODO: renamed from --relativizePaths
+@click.option('--relativize-paths', '-r',
               is_flag=True,
               help="If True, paths in the output data CSV will always be relative to the location"
                    " of the output data CSV itself.")
@@ -94,9 +94,9 @@ def new_way(input_dir: str,
             "instead of `gandlf_constructCSV`. Note that in new CLI tool some params were renamed:\n" +
             "  --inputDir to --input-dir\n" +
             "  --channelsID to --channels-id\n" +
-            "  --labelID to --labelID\n" +
+            "  --labelID to --label-id\n" +
             "  --outputFile to --output-file\n" +
-            "  --relativizePaths to --relativizePaths\n" +
+            "  --relativizePaths to --relativize-paths\n" +
             "`gandlf_constructCSV` script would be deprecated soon.")
 def old_way():
     parser = argparse.ArgumentParser(
