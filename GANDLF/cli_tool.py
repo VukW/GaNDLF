@@ -8,6 +8,7 @@ from GANDLF.entrypoints.run import new_way as run_command
 from GANDLF.entrypoints.constructCSV import new_way as construct_csv_command
 from GANDLF.entrypoints.collectStats import new_way as collect_stats_command
 from GANDLF.entrypoints.patchMiner import new_way as path_miner_command
+from GANDLF.entrypoints.preprocess import new_way as preprocess_command
 from GANDLF import version
 
 
@@ -33,6 +34,7 @@ gandlf.add_command(run_command, 'run')
 gandlf.add_command(construct_csv_command, 'construct-csv')
 gandlf.add_command(collect_stats_command, 'collect-stats')
 gandlf.add_command(path_miner_command, 'path-miner')
+gandlf.add_command(preprocess_command, 'preprocess')
 
 if __name__ == '__main__':
     gandlf()
