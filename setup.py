@@ -144,7 +144,7 @@ if __name__ == "__main__":
                 'gandlf_preprocess=GANDLF.entrypoints.preprocess:old_way',
                 'gandlf_anonymizer=GANDLF.entrypoints.anonymizer:old_way',
                 'gandlf_verifyInstall=GANDLF.entrypoints.verifyInstall:old_way',
-                'gandlf_configGenerator=GANDLF.entrypoints.configGenerator:main',
+                'gandlf_configGenerator=GANDLF.entrypoints.configGenerator:old_way',
                 'gandlf_recoverConfig=GANDLF.entrypoints.recoverConfig:main',
                 'gandlf_deploy=GANDLF.entrypoints.deploy:main',
                 'gandlf_optimizeModel=GANDLF.entrypoints.optimizeModel:main',
