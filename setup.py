@@ -150,7 +150,7 @@ if __name__ == "__main__":
                 'gandlf_optimizeModel=GANDLF.entrypoints.optimizeModel:old_way',
                 'gandlf_generateMetrics=GANDLF.entrypoints.generateMetrics:old_way',
                 'gandlf_debugInfo=GANDLF.entrypoints.debugInfo:old_way',
-                'gandlf_updateVersion=GANDLF.entrypoints.updateVersion:main',
+                'gandlf_updateVersion=GANDLF.entrypoints.updateVersion:old_way',
             ],
         },
         classifiers=[
