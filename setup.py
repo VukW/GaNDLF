@@ -147,7 +147,7 @@ if __name__ == "__main__":
                 'gandlf_configGenerator=GANDLF.entrypoints.configGenerator:old_way',
                 'gandlf_recoverConfig=GANDLF.entrypoints.recoverConfig:old_way',
                 'gandlf_deploy=GANDLF.entrypoints.deploy:old_way',
-                'gandlf_optimizeModel=GANDLF.entrypoints.optimizeModel:main',
+                'gandlf_optimizeModel=GANDLF.entrypoints.optimizeModel:old_way',
                 'gandlf_generateMetrics=GANDLF.entrypoints.generateMetrics:main',
             ],
         },
