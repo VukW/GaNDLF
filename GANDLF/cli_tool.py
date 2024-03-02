@@ -12,6 +12,7 @@ from GANDLF.entrypoints.preprocess import new_way as preprocess_command
 from GANDLF.entrypoints.verifyInstall import new_way as verify_install_command
 from GANDLF.entrypoints.configGenerator import new_way as config_generator_command
 from GANDLF.entrypoints.recoverConfig import new_way as recover_config_command
+from GANDLF.entrypoints.deploy import new_way as deploy_command
 from GANDLF import version
 
 
@@ -41,6 +42,7 @@ gandlf.add_command(preprocess_command, 'preprocess')
 gandlf.add_command(verify_install_command, 'verify-install')
 gandlf.add_command(config_generator_command, 'config-generator')
 gandlf.add_command(recover_config_command, 'recover-config')
+gandlf.add_command(deploy_command, 'deploy')
 
 if __name__ == '__main__':
     gandlf()
