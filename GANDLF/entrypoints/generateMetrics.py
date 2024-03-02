@@ -54,7 +54,7 @@ def new_way(config: str,
     )
 
 
-@deprecated("This is a deprecated way of running GanDLF. Please, use `gandlf generateMetrics` cli command " +
+@deprecated("This is a deprecated way of running GanDLF. Please, use `gandlf generate-metrics` cli command " +
             "instead of `gandlf_generateMetrics`. Note that in new CLI tool some params were renamed or "
             "changed its behavior:\n" +
             "  --parameters_file to --config\n" +
