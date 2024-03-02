@@ -109,7 +109,6 @@ def _run(config: str,
               type=click.Path(),
               help="Location to save the output of the inference session. Not used for training.")
 @click.option("--raw-input", "-raw-input",  # TODO: renamed from --rawinput/-rawinput
-              is_flag=True,
               hidden=True)
 @append_copyright_to_help
 def new_way(config: str,
@@ -120,7 +119,7 @@ def new_way(config: str,
             reset: bool,
             resume: bool,
             output_path: str,
-            raw_input: bool):
+            raw_input: str):
     """Semantic segmentation, regression, and classification for medical images using Deep Learning."""
     _run(config=config,
          input_data=input_data,
