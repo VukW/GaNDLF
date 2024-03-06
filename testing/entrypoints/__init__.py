@@ -1,0 +1,227 @@
+import importlib
+from pathlib import Path
+import pytest
+from click import BaseCommand
+from click.testing import CliRunner
+from typing import Callable, Iterable, Any, Mapping
+import inspect
+from dataclasses import dataclass
+import sys
+import shlex
+import os
+import shutil
+from unittest.mock import patch
+
+
+class ArgsExpander:
+    def __init__(self, orig_func: Callable):
+        self.orig_func = orig_func
+
+    def normalize(self, args: Iterable[Any], kwargs: Mapping[str, Any]) -> dict:
+        """
+        Say, we have the following function:
+        `def orig_func(param1: str, param2: str, train_flag=True)`
+        mocked up our orig function with replica. After test is executed we see replica was called with some
+        positional and some keyword args (say, it was `replica(foo, param2=bar)`).
+
+        This function takes
+            the list of positioned args `["foo"]`,
+            dict of keyword args `{"param2": "bar"}`,
+            signature of original function (that includes some params with default value also)
+        and combine it together to receive the normalized dict of args that would be processed:
+        {
+            "param1": "foo",
+            "param2": "bar",
+            "train_flag": True
+        }
+        """
+        # Get parameter names from the original function
+        params = inspect.signature(self.orig_func).parameters
+        arg_names = list(params.keys())
+
+        # Build a dictionary of argument names to passed values
+        # Start with positional arguments
+        passed_args = {arg_names[i]: arg for i, arg in enumerate(args)}
+
+        # Update the dictionary with keyword arguments
+        passed_args.update(kwargs)
+
+        # For any missing arguments that have defaults, add those to the dictionary
+        for name, param in params.items():
+            if name not in passed_args and param.default is not inspect.Parameter.empty:
+                passed_args[name] = param.default
+
+        return passed_args
+
+
+# Fixture for Click's CliRunner to test Click commands
+@pytest.fixture
+def cli_runner():
+    return CliRunner()
+
+
+@dataclass
+class TestCase:
+    """
+    Represent a specific case. All passed new way lines as well as old way lines should finally have exactly the same
+    behavior and call a real logic function with `expected_args`.
+
+    Args:
+        should_succeed: if that console command should succeed or fail
+        new_way_lines: list of str of the following format (in reality are passed as args to `gandlf` cli tool):
+            '--input-dir input/ -c config.yaml -m rad --output-file output/'
+            If skipped, new_way would not be tested.
+        old_way_lines: list of str of the same format, but for old-fashioned format of cmd execution
+            (say, via `gandlf_patchMiner'):
+            '--inputDir input/ -c config.yaml -m rad --outputFile output/'
+            If skipped, old_way would not be tested.
+        wrapper_args: both new_way and old_way call the same wrapper (that, in turn, call a real code logic).
+            Wrapper func called with these args should behave exactly in the same way as new/old way commands,
+            i.e. call the final real logics code with `expected_args`.
+            Checking wrapper directly would help to calculate tests coverage for wrapper logic.
+            Required, if `should_succeed`.
+        expected_args: dict or params that should be finally passed to real logics code.
+            Required, if `should_succeed`.
+
+    """
+    should_succeed: bool = True
+    new_way_lines: list[str] = None
+    old_way_lines: list[str] = None
+    wrapper_args: dict = None
+    expected_args: dict = None
+
+
+def assert_called_properly(mock_func, expected_args: dict, args_normalizer):
+    """Check that mock_func was called exactly once and passed args are identical to expected_args"""
+    mock_func.assert_called_once()
+    executed_call = mock_func.mock_calls[0]
+    actual_args = args_normalizer.normalize(args=executed_call.args,
+                                            kwargs=executed_call.kwargs)
+    assert expected_args == actual_args, \
+        f"Function was not called with the expected arguments: {expected_args=} vs {actual_args=}"
+
+
+def run_test_case(cli_runner: CliRunner,
+                  case: TestCase,
+                  real_code_function_path: str,
+                  new_way: BaseCommand,
+                  old_way: Callable,
+                  old_script_name: str,
+                  wrapper_func: Callable = None):
+    module_path, func_name = real_code_function_path.rsplit('.', 1)
+    module = importlib.import_module(module_path)
+    real_code_function = getattr(module, func_name)
+
+    args_normalizer = ArgsExpander(real_code_function)
+    with patch(real_code_function_path) as mock_logic:
+
+        # tests that all click commands trigger execution with expected args
+        for new_line in (case.new_way_lines or []):
+            try:
+                mock_logic.reset_mock()
+                new_cmd = shlex.split(new_line)
+                result = cli_runner.invoke(new_way, new_cmd)
+                if case.should_succeed:
+                    assert result.exit_code == 0
+                    assert_called_properly(mock_logic, case.expected_args, args_normalizer)
+                else:
+                    assert result.exit_code != 0
+            except BaseException:
+                print(f"Test failed on the new case: {new_line}")
+                print(f"Exception: {result.exception}")
+                print(f"Exc info: {result.exc_info}")
+                print(f"output: {result.output}")
+                raise
+
+        # tests that old way commands via `gandlf_*` script trigger the same expected_args
+        for old_line in (case.old_way_lines or []):
+            try:
+                mock_logic.reset_mock()
+                argv = [old_script_name] + shlex.split(old_line)
+                if case.should_succeed:
+                    with patch.object(sys, 'argv', argv):
+                        old_way()
+                    assert_called_properly(mock_logic, case.expected_args, args_normalizer)
+                else:
+                    with pytest.raises(SystemExit) as e:
+                        with patch.object(sys, 'argv', argv):
+                            old_way()
+                    assert e.type == SystemExit
+                    assert e.value.code != 0
+            except BaseException:
+                print(f"Test failed on the old case: {old_line}")
+                raise
+
+        # check that invoking wrapper directly works well also. Used for tests coverage
+        try:
+            mock_logic.reset_mock()
+            if wrapper_func and (case.wrapper_args is not None):
+                wrapper_func(**case.wrapper_args)
+                assert_called_properly(mock_logic, case.expected_args, args_normalizer)
+
+        except BaseException:
+            print(f"Test failed for the wrapper: {wrapper_func=}, {case.wrapper_args}")
+            raise
+
+
+class TempFileSystem:
+    """
+    Given a dict of path -> path description (dir / file with content / na), creates
+    the paths that are needed (dirs + files), and remove everything on the exit.
+    For `na` files ensures they do not exist.
+
+    If any of given paths already present on file system, then raises an error.
+
+    By default, creates requested structure right in working directory.
+    """
+    def __init__(self, config, root_dir=None):
+        self.config = config
+        self.root_dir = root_dir
+        self.temp_paths: list[Path] = []
+
+    def __enter__(self):
+        try:
+            self.setup_file_system()
+        except Exception as e:
+            self.cleanup()
+            raise e
+        return self
+
+    def setup_file_system(self):
+        for path, path_type in self.config.items():
+            # no tmp files should exist beforehand as we will clean everything on exit
+            path = Path(path)
+            if self.root_dir:
+                path = Path(self.root_dir) / path
+            if path.exists():
+                raise FileExistsError(path,
+                                      "For temp file system all paths must absent beforehand as we remove everything "
+                                      "at the end.")
+            if path_type == "dir":
+                path.mkdir(parents=True, exist_ok=False)
+                self.temp_paths.append(path)
+            elif path_type == "na":
+                pass  # we already ensured it not exists
+            elif isinstance(path_type, dict):  # dict with file content
+                path.parent.mkdir(parents=True, exist_ok=True)
+                with open(path, 'w') as fin:
+                    content = path_type.get("content")
+                    if content:
+                        fin.write(content)
+                self.temp_paths.append(path)
+            else:
+                raise ValueError(
+                    f"For path {path} type {path_type} is invalid. Use `dir` / `na` / dict with file content"
+                )
+
+    def cleanup(self):
+        for path in reversed(self.temp_paths):
+            if path.is_file():
+                os.remove(path)
+            elif path.is_dir():
+                shutil.rmtree(path)
+            else:
+                raise ValueError(f'wrong path {path}, not a dir, not a file. Cannot remove!')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.cleanup()

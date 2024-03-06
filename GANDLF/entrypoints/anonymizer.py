@@ -1,7 +1,10 @@
 #!usr/bin/env python
 # -*- coding: utf-8 -*-
 import logging
-import os, argparse, sys, yaml
+import os
+import argparse
+import sys
+import yaml
 from typing import Optional
 import click
 from deprecated import deprecated
@@ -14,6 +17,7 @@ from GANDLF.entrypoints import append_copyright_to_help
 def _anonymize_images(input_dir: str, output_file: str, config_path: Optional[str], modality: str):
     input_dir = os.path.normpath(input_dir)
     output_file = os.path.normpath(output_file)
+    # TODO: raise an error if config pass provided but not exist (user made a typo?)
     if config_path and os.path.isfile(config_path):
         config = yaml.safe_load(open(config_path, "r"))
     else:
@@ -97,9 +101,10 @@ def old_way():
     args = parser.parse_args()
 
     # check for required parameters - this is needed here to keep the cli clean
-    for param_none_check in [args.inputDir, args.outputFile]:
+    for param_name in ['inputDir', 'outputFile']:
+        param_none_check = getattr(args, param_name)
         if param_none_check is None:
-            sys.exit("ERROR: Missing required parameter:", param_none_check)
+            sys.exit(f"ERROR: Missing required parameter: {param_name}")
 
     inputDir = args.inputDir
     outputFile = args.outputFile
