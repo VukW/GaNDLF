@@ -121,6 +121,8 @@ test_cases = [
             "-i path_na -o output.csv",
             # tests that input is required
             "-o output.csv",
+            # tests that output is required
+            "-i .",
             # tests that config file, if provided, should exist
             "-i . -c path_na -o output.csv",
             # tests that modality cannot take arbitrary values
@@ -129,6 +131,7 @@ test_cases = [
         old_way_lines=[
             # "-i path_na -o output.csv", # <- in old way input is not required to exist
             "-o output.csv",
+            "-i .",
             # "-i . -c path_na -o output.csv",  # <- in old way if config file does not exist, it just skipped silently
             # "-i . -m fake_modality -o output.csv",  # <- in old way there is no such a validation in cli part
         ],
@@ -138,13 +141,13 @@ test_cases = [
 
 @pytest.mark.parametrize("case", test_cases)
 def test_case(cli_runner: CliRunner, case: TestCase):
-    with TempFileSystem(test_file_system):
-        run_test_case(
-            cli_runner=cli_runner,
-            case=case,
-            real_code_function_path=MOCK_PATH,
-            new_way=new_way,
-            old_way=old_way,
-            old_script_name=OLD_SCRIPT_NAME,
-            wrapper_func=_anonymize_images
-        )
+    run_test_case(
+        cli_runner=cli_runner,
+        file_system_config=test_file_system,
+        case=case,
+        real_code_function_path=MOCK_PATH,
+        new_way=new_way,
+        old_way=old_way,
+        old_script_name=OLD_SCRIPT_NAME,
+        wrapper_func=_anonymize_images
+    )

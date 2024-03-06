@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import logging
 import os
 import argparse
+from typing import Optional
+
 import click
 import pandas as pd
 import seaborn as sns
@@ -132,6 +134,21 @@ def plot_all(df_training, df_validation, df_testing, output_plot_dir):
     return df_training, df_validation, df_testing
 
 
+def _read_data_and_plot(
+        training_logs_path: str,
+        validation_logs_path: str,
+        testing_logs_path: Optional[str],
+        output_plot_path: str):
+    # moved out from _collect_stats for easier testing
+    # Read all the files
+    df_training = pd.read_csv(training_logs_path)
+    df_validation = pd.read_csv(validation_logs_path)
+    df_testing = pd.read_csv(testing_logs_path) if testing_logs_path else None
+
+    # Check for metrics in columns and do tight plots
+    plot_all(df_training, df_validation, df_testing, output_plot_path)
+
+
 def _collect_stats(model_dir: str, output_dir: str):
     input_dir = os.path.normpath(model_dir)
     output_dir = os.path.normpath(output_dir)
@@ -143,14 +160,11 @@ def _collect_stats(model_dir: str, output_dir: str):
     training_logs = os.path.join(input_dir, "logs_training.csv")
     validation_logs = os.path.join(input_dir, "logs_validation.csv")
     testing_logs = os.path.join(input_dir, "logs_testing.csv")
+    if not os.path.isfile(testing_logs):
+        logging.info(f'testing logs file was not found: {testing_logs}')
+        testing_logs = None
 
-    # Read all the files
-    df_training = pd.read_csv(training_logs)
-    df_validation = pd.read_csv(validation_logs)
-    df_testing = pd.read_csv(testing_logs) if os.path.isfile(testing_logs) else None
-
-    # Check for metrics in columns and do tight plots
-    plot_all(df_training, df_validation, df_testing, output_plot)
+    _read_data_and_plot(training_logs, validation_logs, testing_logs, output_plot)
 
 
 @click.command()
@@ -172,8 +186,8 @@ def new_way(model_dir: str,
 
 @deprecated("This is a deprecated way of running GanDLF. Please, use `gandlf collect-stats` cli command " +
             "instead of `gandlf_collectStats`. Note that in new CLI tool params were renamed to snake-case:\n" +
-            "  --modelDir to --model-dir\n" +
-            "  --outputDir to --output-dir\n" +
+            "  --modeldir to --model-dir\n" +
+            "  --outputdir to --output-dir\n" +
             "`gandlf_collectStats` script would be deprecated soon.")
 def old_way():
     parser = argparse.ArgumentParser(
@@ -198,7 +212,7 @@ def old_way():
     )
 
     args = parser.parse_args()
-    _collect_stats(args.modelDir, args.outputDir)
+    _collect_stats(args.modeldir, args.outputdir)
 
 
 if __name__ == '__main__':

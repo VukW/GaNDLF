@@ -91,6 +91,18 @@ class TestCase:
     expected_args: dict = None
 
 
+def args_diff(expected_args: dict[str, Any], actual_args: dict[str, Any]) -> list[str]:
+    result = []
+    for k in set(expected_args) | set(actual_args):
+        if (
+                k not in expected_args
+                or k not in actual_args
+                or expected_args[k] != actual_args[k]
+        ):
+            result.append(k)
+    return result
+
+
 def assert_called_properly(mock_func, expected_args: dict, args_normalizer):
     """Check that mock_func was called exactly once and passed args are identical to expected_args"""
     mock_func.assert_called_once()
@@ -98,16 +110,19 @@ def assert_called_properly(mock_func, expected_args: dict, args_normalizer):
     actual_args = args_normalizer.normalize(args=executed_call.args,
                                             kwargs=executed_call.kwargs)
     assert expected_args == actual_args, \
-        f"Function was not called with the expected arguments: {expected_args=} vs {actual_args=}"
+        (f"Function was not called with the expected arguments: {expected_args=} vs {actual_args=}, "
+         f"diff {args_diff(expected_args, actual_args)}")
 
 
-def run_test_case(cli_runner: CliRunner,
-                  case: TestCase,
-                  real_code_function_path: str,
-                  new_way: BaseCommand,
-                  old_way: Callable,
-                  old_script_name: str,
-                  wrapper_func: Callable = None):
+def run_test_case(
+        cli_runner: CliRunner,
+        file_system_config: dict[str, Any],
+        case: TestCase,
+        real_code_function_path: str,
+        new_way: BaseCommand,
+        old_way: Callable,
+        old_script_name: str,
+        wrapper_func: Callable = None):
     module_path, func_name = real_code_function_path.rsplit('.', 1)
     module = importlib.import_module(module_path)
     real_code_function = getattr(module, func_name)
@@ -120,7 +135,8 @@ def run_test_case(cli_runner: CliRunner,
             try:
                 mock_logic.reset_mock()
                 new_cmd = shlex.split(new_line)
-                result = cli_runner.invoke(new_way, new_cmd)
+                with TempFileSystem(file_system_config):
+                    result = cli_runner.invoke(new_way, new_cmd)
                 if case.should_succeed:
                     assert result.exit_code == 0
                     assert_called_properly(mock_logic, case.expected_args, args_normalizer)
@@ -139,13 +155,17 @@ def run_test_case(cli_runner: CliRunner,
                 mock_logic.reset_mock()
                 argv = [old_script_name] + shlex.split(old_line)
                 if case.should_succeed:
-                    with patch.object(sys, 'argv', argv):
+                    with (patch.object(sys, 'argv', argv),
+                          TempFileSystem(file_system_config)):
                         old_way()
                     assert_called_properly(mock_logic, case.expected_args, args_normalizer)
                 else:
-                    with pytest.raises(SystemExit) as e:
-                        with patch.object(sys, 'argv', argv):
-                            old_way()
+                    with (
+                        pytest.raises(SystemExit) as e,
+                        patch.object(sys, 'argv', argv),
+                        TempFileSystem(file_system_config)
+                    ):
+                        old_way()
                     assert e.type == SystemExit
                     assert e.value.code != 0
             except BaseException:
@@ -156,7 +176,8 @@ def run_test_case(cli_runner: CliRunner,
         try:
             mock_logic.reset_mock()
             if wrapper_func and (case.wrapper_args is not None):
-                wrapper_func(**case.wrapper_args)
+                with TempFileSystem(file_system_config):
+                    wrapper_func(**case.wrapper_args)
                 assert_called_properly(mock_logic, case.expected_args, args_normalizer)
 
         except BaseException:
@@ -174,6 +195,7 @@ class TempFileSystem:
 
     By default, creates requested structure right in working directory.
     """
+
     def __init__(self, config, root_dir=None):
         self.config = config
         self.root_dir = root_dir
@@ -199,7 +221,6 @@ class TempFileSystem:
                                       "at the end.")
             if path_type == "dir":
                 path.mkdir(parents=True, exist_ok=False)
-                self.temp_paths.append(path)
             elif path_type == "na":
                 pass  # we already ensured it not exists
             elif isinstance(path_type, dict):  # dict with file content
@@ -208,11 +229,11 @@ class TempFileSystem:
                     content = path_type.get("content")
                     if content:
                         fin.write(content)
-                self.temp_paths.append(path)
             else:
                 raise ValueError(
                     f"For path {path} type {path_type} is invalid. Use `dir` / `na` / dict with file content"
                 )
+            self.temp_paths.append(path)
 
     def cleanup(self):
         for path in reversed(self.temp_paths):
@@ -220,6 +241,8 @@ class TempFileSystem:
                 os.remove(path)
             elif path.is_dir():
                 shutil.rmtree(path)
+            elif not path.exists():
+                pass
             else:
                 raise ValueError(f'wrong path {path}, not a dir, not a file. Cannot remove!')
 
