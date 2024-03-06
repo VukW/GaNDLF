@@ -13,7 +13,7 @@ def _generate_config(config: str, strategy: str, output: str):
 
 @click.command()
 @click.option('--config', '-c',
-              help="Config (in YAML) for running anonymization, optionally, specify modality using '-m' for defaults.",
+              help="Path to base config.",
               required=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False))
 @click.option('--strategy', '-s',
