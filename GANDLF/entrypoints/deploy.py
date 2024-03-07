@@ -40,6 +40,15 @@ def _deploy(model: Optional[str],
         raise AssertionError(
             "Error: a path to a model directory should be provided when deploying a model"
         )
+    print(f"{mlcube_root=}")
+    print(f"{output_dir=}")
+    print(f"{target=}")
+    print(f"{mlcube_type=}")
+    print(f"{entrypoint=}")
+    print(f"{config=}")
+    print(f"{model=}")
+    print(f"{requires_gpu=}")
+
     result = run_deployment(
         mlcubedir=mlcube_root,
         outputdir=output_dir,
@@ -50,37 +59,47 @@ def _deploy(model: Optional[str],
         modeldir=model,
         requires_gpu=requires_gpu,
     )
+
     assert result, "Deployment to the target platform failed."
 
 
 @click.command()
-# TODO: rearrange & group params
 @click.option('--model', '-m',
-              # TODO: check that files are not supported
               type=click.Path(exists=True, file_okay=False, dir_okay=True),
-              help="Path to the model directory you wish to deploy. Required for model MLCubes, ignored for metrics MLCubes.")
+              help="Path to the model directory you wish to deploy. Required for model MLCubes, "
+                   "ignored for metrics MLCubes.")
 @click.option('--config', '-c',
-              help="Optional path to an alternative config file to be embedded with the model. If blank/default, we use the previous config from the model instead. Only relevant for model MLCubes. Ignored for metrics MLCubes",
+              help="Optional path to an alternative config file to be embedded with the model. "
+                   "If blank/default, we use the previous config from the model instead. "
+                   "Only relevant for model MLCubes. Ignored for metrics MLCubes",
               type=click.Path(exists=True, file_okay=True, dir_okay=False))
 @click.option('--target', '-t',
               required=True,
-              type=click.Option(*deploy_targets),
+              type=click.Choice(deploy_targets),
               help="The target platform.")
 @click.option('--mlcube-type',
-              type=click.Option(mlcube_types),
+              type=click.Choice(mlcube_types),
               required=True,
               help="The mlcube type.")
 @click.option('--mlcube-root', '-r',
               required=True,
               type=click.Path(exists=True, file_okay=False, dir_okay=True),
-              help="Path to an alternative MLCUBE_ROOT directory to use as a template (or a path to a specific mlcube YAML configuration file, in which case we will use the parent directory). The source repository contains an example (https://github.com/mlcommons/GaNDLF/tree/master/mlcube).")
+              help="Path to an alternative MLCUBE_ROOT directory to use as a template. The source "
+                   "repository contains an example (https://github.com/mlcommons/GaNDLF/tree/master/mlcube).")
+@click.option('--output-dir', '-o',
+              required=True,
+              help="Output directory path. "
+                   "For MLCube builds, generates an MLCube directory to be distributed with your MLCube.",
+              type=click.Path(file_okay=False, dir_okay=True))
 @click.option('--requires-gpu/--no-gpu', '-g',
               is_flag=True,
-              default=True,  # TODO: check if behaves as expected
-              help="True if the model requires a GPU by default, False otherwise. Only relevant for model MLCubes. Ignored for metrics MLCubes")
+              default=True,
+              help="True if the model requires a GPU by default, False otherwise. "
+                   "Only relevant for model MLCubes. Ignored for metrics MLCubes")
 @click.option('--entrypoint', '-e',
-              type=click.Path(file_okay=True, dir_okay=False),
-              help="An optional custom python entrypoint script to use instead of the default specified in mlcube.yaml. (Only for inference and metrics)")
+              type=click.Path(exists=True, file_okay=True, dir_okay=False),
+              help="An optional custom python entrypoint script to use instead of the default specified in mlcube.yaml."
+                   " (Only for inference and metrics)")
 @append_copyright_to_help
 def new_way(model: Optional[str],
             config: Optional[str],
@@ -155,7 +174,7 @@ def old_way():
         metavar="",
         type=str,
         required=True,
-        help="Path to an alternative MLCUBE_ROOT directory to use as a template (or a path to a specific mlcube YAML configuration file, in which case we will use the parent directory). The source repository contains an example (https://github.com/mlcommons/GaNDLF/tree/master/mlcube).",
+        help="Path to an alternative MLCUBE_ROOT directory to use as a template. The source repository contains an example (https://github.com/mlcommons/GaNDLF/tree/master/mlcube).",
     )
     parser.add_argument(
         "-o",

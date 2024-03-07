@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from click import BaseCommand
 from click.testing import CliRunner
-from typing import Callable, Iterable, Any, Mapping, Optional, List
+from typing import Callable, Iterable, Any, Mapping, Optional, List, Union
 import inspect
 from dataclasses import dataclass
 import sys
@@ -105,7 +105,7 @@ class TmpDire(_TmpPath):
 
 @dataclass
 class TmpFile(_TmpPath):
-    content: Optional[str] = None
+    content: Optional[Union[str, bytes]] = None
 
 
 @dataclass
@@ -153,10 +153,16 @@ class TempFileSystem:
                 pass  # we already ensured it not exists
             elif isinstance(item, TmpFile):
                 path.parent.mkdir(parents=True, exist_ok=True)
-                with open(path, 'w') as fin:
-                    content = item.content
-                    if content:
-                        fin.write(content)
+                if isinstance(item.content, bytes):
+                    with open(path, 'wb') as fin:
+                        fin.write(item.content)
+                elif isinstance(item.content, str) or not item.content:
+                    with open(path, 'w') as fin:
+                        if item.content:
+                            fin.write(item.content)
+                else:
+                    raise ValueError(f'Given tmp file has an invalid content (should be str or bytes): {item}')
+
             else:
                 raise ValueError(f"Given tmp file entity is of invalid type: {item}")
             self.temp_paths.append(path)
@@ -246,13 +252,15 @@ def run_test_case(
                     assert_called_properly(mock_logic, case.expected_args, args_normalizer)
                 else:
                     with (
-                        pytest.raises(SystemExit) as e,
+                        # here we can list possible errors that are allowed to be raised.
+                        # Any other raised exception would be treated as test fail
+                        pytest.raises((SystemExit, AssertionError)) as e,
                         patch.object(sys, 'argv', argv),
                         TempFileSystem(file_system_config)
                     ):
                         old_way()
-                    assert e.type == SystemExit
-                    assert e.value.code != 0
+                    if isinstance(e.value, SystemExit):
+                        assert e.value.code != 0
             except BaseException:
                 print(f"Test failed on the old case: {old_line}")
                 raise
