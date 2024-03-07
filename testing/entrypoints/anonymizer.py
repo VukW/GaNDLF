@@ -4,21 +4,23 @@ from click.testing import CliRunner
 
 from GANDLF.entrypoints.anonymizer import new_way, old_way, _anonymize_images
 
-from testing.entrypoints import cli_runner, TestCase, run_test_case, TempFileSystem
+from testing.entrypoints import cli_runner, TestCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
-# this function would be replaced with `mock_real_command` replica
+# This function is a place where a real logic is executed.
+# For tests, we replace it with mock up, and check if this function is called
+# with proper args for different cli commands
 MOCK_PATH = "GANDLF.entrypoints.anonymizer.run_anonymizer"
 OLD_SCRIPT_NAME = "gandlf_anonymizer"
 
 # these files would be either created temporarily for test execution,
 # or we ensure they do not exist
-test_file_system = {
-    "input/": "dir",
-    "config.yaml": {"content": "foo: bar"},
-    "output/": "dir",
-    "path_na/": "na",
-    "output.csv": {"content": "col1,col2\n123,456\n"},
-}
+test_file_system = [
+    TmpDire("input/"),
+    TmpFile("config.yaml", content="foo: bar"),
+    TmpDire("output/"),
+    TmpNoEx("path_na/"),
+    TmpFile("output.csv", content="col1,col2\n123,456\n"),
+]
 test_cases = [
     TestCase(
         should_succeed=True,

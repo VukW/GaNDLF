@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from click import BaseCommand
 from click.testing import CliRunner
-from typing import Callable, Iterable, Any, Mapping
+from typing import Callable, Iterable, Any, Mapping, Optional, List
 import inspect
 from dataclasses import dataclass
 import sys
@@ -91,6 +91,91 @@ class TestCase:
     expected_args: dict = None
 
 
+@dataclass
+class _TmpPath:
+    path: str
+
+
+# it's not a typo in class name - I want to keep the same name len for dir / file / na
+# for config to be more readable (paths are aligned in one column then)
+@dataclass
+class TmpDire(_TmpPath):
+    pass
+
+
+@dataclass
+class TmpFile(_TmpPath):
+    content: Optional[str] = None
+
+
+@dataclass
+class TmpNoEx(_TmpPath):
+    pass
+
+
+class TempFileSystem:
+    """
+    Given a dict of path -> path description (dir / file with content / na), creates
+    the paths that are needed (dirs + files), and remove everything on the exit.
+    For `na` files ensures they do not exist.
+
+    If any of given paths already present on file system, then raises an error.
+
+    By default, creates requested structure right in working directory.
+    """
+
+    def __init__(self, config: list[_TmpPath], root_dir=None):
+        self.config = config
+        self.root_dir = root_dir
+        self.temp_paths: list[Path] = []
+
+    def __enter__(self):
+        try:
+            self.setup_file_system()
+        except Exception as e:
+            self.cleanup()
+            raise e
+        return self
+
+    def setup_file_system(self):
+        for item in self.config:
+            # no tmp files should exist beforehand as we will clean everything on exit
+            path = Path(item.path)
+            if self.root_dir:
+                path = Path(self.root_dir) / path
+            if path.exists():
+                raise FileExistsError(path,
+                                      "For temp file system all paths must absent beforehand as we remove everything "
+                                      "at the end.")
+            if isinstance(item, TmpDire):
+                path.mkdir(parents=True, exist_ok=False)
+            elif isinstance(item, TmpNoEx):
+                pass  # we already ensured it not exists
+            elif isinstance(item, TmpFile):
+                path.parent.mkdir(parents=True, exist_ok=True)
+                with open(path, 'w') as fin:
+                    content = item.content
+                    if content:
+                        fin.write(content)
+            else:
+                raise ValueError(f"Given tmp file entity is of invalid type: {item}")
+            self.temp_paths.append(path)
+
+    def cleanup(self):
+        for path in reversed(self.temp_paths):
+            if path.is_file():
+                os.remove(path)
+            elif path.is_dir():
+                shutil.rmtree(path)
+            elif not path.exists():
+                pass
+            else:
+                raise ValueError(f'wrong path {path}, not a dir, not a file. Cannot remove!')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.cleanup()
+
+
 def args_diff(expected_args: dict[str, Any], actual_args: dict[str, Any]) -> list[str]:
     result = []
     for k in set(expected_args) | set(actual_args):
@@ -116,7 +201,7 @@ def assert_called_properly(mock_func, expected_args: dict, args_normalizer):
 
 def run_test_case(
         cli_runner: CliRunner,
-        file_system_config: dict[str, Any],
+        file_system_config: List[_TmpPath],
         case: TestCase,
         real_code_function_path: str,
         new_way: BaseCommand,
@@ -183,68 +268,3 @@ def run_test_case(
         except BaseException:
             print(f"Test failed for the wrapper: {wrapper_func=}, {case.wrapper_args}")
             raise
-
-
-class TempFileSystem:
-    """
-    Given a dict of path -> path description (dir / file with content / na), creates
-    the paths that are needed (dirs + files), and remove everything on the exit.
-    For `na` files ensures they do not exist.
-
-    If any of given paths already present on file system, then raises an error.
-
-    By default, creates requested structure right in working directory.
-    """
-
-    def __init__(self, config, root_dir=None):
-        self.config = config
-        self.root_dir = root_dir
-        self.temp_paths: list[Path] = []
-
-    def __enter__(self):
-        try:
-            self.setup_file_system()
-        except Exception as e:
-            self.cleanup()
-            raise e
-        return self
-
-    def setup_file_system(self):
-        for path, path_type in self.config.items():
-            # no tmp files should exist beforehand as we will clean everything on exit
-            path = Path(path)
-            if self.root_dir:
-                path = Path(self.root_dir) / path
-            if path.exists():
-                raise FileExistsError(path,
-                                      "For temp file system all paths must absent beforehand as we remove everything "
-                                      "at the end.")
-            if path_type == "dir":
-                path.mkdir(parents=True, exist_ok=False)
-            elif path_type == "na":
-                pass  # we already ensured it not exists
-            elif isinstance(path_type, dict):  # dict with file content
-                path.parent.mkdir(parents=True, exist_ok=True)
-                with open(path, 'w') as fin:
-                    content = path_type.get("content")
-                    if content:
-                        fin.write(content)
-            else:
-                raise ValueError(
-                    f"For path {path} type {path_type} is invalid. Use `dir` / `na` / dict with file content"
-                )
-            self.temp_paths.append(path)
-
-    def cleanup(self):
-        for path in reversed(self.temp_paths):
-            if path.is_file():
-                os.remove(path)
-            elif path.is_dir():
-                shutil.rmtree(path)
-            elif not path.exists():
-                pass
-            else:
-                raise ValueError(f'wrong path {path}, not a dir, not a file. Cannot remove!')
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.cleanup()

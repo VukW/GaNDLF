@@ -36,9 +36,10 @@ def _construct_csv(
                 if isinstance(channels_id, list):
                     channels_id = ",".join(channels_id)
 
+                # TODO: raise a warning if label param is both passed as arg and defined in file
                 if "label" in content:
                     label_id = content["label"]
-                    if isinstance(label_id, list):
+                    if isinstance(label_id, list):  # TODO: it can be really a list?
                         label_id = ",".join(label_id)
 
     logging.debug(f'{input_dir=}')
@@ -61,13 +62,13 @@ def _construct_csv(
               help="Input data directory which contains images in specified format")
 @click.option('--channels-id', '-c',
               required=True,
-              help="Channels/modalities identifier string to check for in all files in 'input_dir'; "
-                   "for example: --channels-id _t1.nii.gz,_t2.nii.gz",
+              help="Channels/modalities identifier string to check for in all files in 'input_dir'; for example: "
+                   "--channels-id _t1.nii.gz,_t2.nii.gz. May be a YAML file with `channels` list of suffixes",
               type=str)
 @click.option('--label-id', '-l',
               type=str,
-              help="Label/mask identifier string to check for in all files in 'input_dir'; "
-                   "for example: --label-id _seg.nii.gz")
+              help="Label/mask identifier string to check for in all files in 'input_dir'; for example: "
+                   "--label-id _seg.nii.gz. Param value is ignored in `label` is defined in channels YAML file")
 @click.option('--output-file', '-o',
               required=True,
               type=click.Path(file_okay=True, dir_okay=False),
@@ -96,7 +97,7 @@ def new_way(input_dir: str,
             "  --channelsID to --channels-id\n" +
             "  --labelID to --label-id\n" +
             "  --outputFile to --output-file\n" +
-            "  --relativizePaths to --relativize-paths\n" +
+            "  --relativizePaths to --relativize-paths and converted to flag, i.e. no value required\n" +
             "`gandlf_constructCSV` script would be deprecated soon.")
 def old_way():
     parser = argparse.ArgumentParser(
@@ -145,13 +146,12 @@ def old_way():
     args = parser.parse_args()
 
     # check for required parameters - this is needed here to keep the cli clean
-    for param_none_check in [
-        args.inputDir,
-        args.channelsID,
-        args.outputFile,
-    ]:
+    for param_name in ['inputDir',
+                       'channelsID',
+                       'outputFile']:
+        param_none_check = getattr(args, param_name)
         if param_none_check is None:
-            sys.exit("ERROR: Missing required parameter:", param_none_check)
+            sys.exit(f"ERROR: Missing required parameter: {param_name}")
 
     _construct_csv(input_dir=args.inputDir,
                    channels_id=args.channelsID,

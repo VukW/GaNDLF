@@ -3,31 +3,33 @@ from click.testing import CliRunner
 
 from GANDLF.entrypoints.collectStats import new_way, old_way, _collect_stats
 
-from testing.entrypoints import cli_runner, TestCase, run_test_case
+from testing.entrypoints import cli_runner, TestCase, run_test_case, TmpNoEx, TmpDire, TmpFile
 
-# this function would be replaced with `mock_real_command` replica
+# This function is a place where a real logic is executed.
+# For tests, we replace it with mock up, and check if this function is called
+# with proper args for different cli commands
 MOCK_PATH = "GANDLF.entrypoints.collectStats._read_data_and_plot"
 OLD_SCRIPT_NAME = "gandlf_collectStats"
 
 # these files would be either created temporarily for test execution,
 # or we ensure they do not exist
-test_csv = {"content": "col1,col2\n1,100\n2,200"}
-test_file_system = {
-    "model_full/": "dir",
-    "model_full/logs_training.csv": test_csv,
-    "model_full/logs_validation.csv": test_csv,
-    "model_full/logs_testing.csv": test_csv,
+test_csv = "col1,col2\n1,100\n2,200"
+test_file_system = [
+    TmpDire("model_full/"),
+    TmpFile("model_full/logs_training.csv", content=test_csv),
+    TmpFile("model_full/logs_validation.csv", content=test_csv),
+    TmpFile("model_full/logs_testing.csv", content=test_csv),
 
-    "model_no_test/": "dir",
-    "model_no_test/logs_training.csv": test_csv,
-    "model_no_test/logs_validation.csv": test_csv,
+    TmpDire("model_no_test/"),
+    TmpFile("model_no_test/logs_training.csv", content=test_csv),
+    TmpFile("model_no_test/logs_validation.csv", content=test_csv),
 
-    "model_empty/": "dir",
-    "file.txt": {"content": "foobar"},
-    "output/": "dir",
-    "output_na/": "na",
-    "path_na/": "na",
-}
+    TmpDire("model_empty/"),
+    TmpFile("file.txt", content="foobar"),
+    TmpDire("output/"),
+    TmpNoEx("output_na/"),
+    TmpNoEx("path_na/"),
+]
 test_cases = [
     TestCase(
         should_succeed=True,

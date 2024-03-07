@@ -3,21 +3,23 @@ from click.testing import CliRunner
 
 from GANDLF.entrypoints.configGenerator import new_way, old_way, _generate_config
 
-from testing.entrypoints import cli_runner, TestCase, run_test_case
+from testing.entrypoints import cli_runner, TestCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
-# this function would be replaced with `mock_real_command` replica
+# This function is a place where a real logic is executed.
+# For tests, we replace it with mock up, and check if this function is called
+# with proper args for different cli commands
 MOCK_PATH = "GANDLF.entrypoints.configGenerator.config_generator"
 OLD_SCRIPT_NAME = "gandlf_configGenerator"
 
 # these files would be either created temporarily for test execution,
 # or we ensure they do not exist
-test_file_system = {
-    "config.yaml": {"content": "foo: bar"},
-    "strategy.yaml": {"content": "baz: abc"},
-    "output.csv": {"content": "col1,col2\n123,456\n"},
-    "output/": "dir",
-    "path_na": "na",
-}
+test_file_system = [
+    TmpFile("config.yaml", content="foo: bar"),
+    TmpFile("strategy.yaml", content="baz: abc"),
+    TmpFile("output.csv", content="col1,col2\n123,456\n"),
+    TmpDire("output/"),
+    TmpNoEx("path_na"),
+]
 test_cases = [
     TestCase(
         should_succeed=True,
