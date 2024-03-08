@@ -8,13 +8,14 @@ from deprecated import deprecated
 from typing import Optional
 
 from GANDLF import version
-from GANDLF.cli import generate_metrics, copyrightMessage
+from GANDLF.cli import copyrightMessage
+from GANDLF.cli.generate_metrics import generate_metrics_dict
 from GANDLF.entrypoints import append_copyright_to_help
 
 
 def _generate_metrics(input_data: str, config: str, output_file: Optional[str]):
     try:
-        generate_metrics.generate_metrics_dict(
+        generate_metrics_dict(
             input_data,
             config,
             output_file,
@@ -27,19 +28,19 @@ def _generate_metrics(input_data: str, config: str, output_file: Optional[str]):
 
 
 @click.command()
-@click.option('--config', '-c',  # TODO: renamed from --parameters_file
+@click.option('--config', '-c',
               required=True,
               help="The configuration file (contains all the information related to the training/inference session)",
               type=click.Path(exists=True, file_okay=True, dir_okay=False))
-@click.option('--input-data', '-i',  # TODO: renamed from --inputdata / --data_path
+@click.option('--input-data', '-i',
               required=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False),
               help="The CSV file of input data that is used to generate the metrics; "
                    "should contain 3 columns: 'SubjectID,Target,Prediction'")
-@click.option('--output-file', '-o',  # TODO: renamed from --outputfile / --output_path
-              type=click.Path(),
+@click.option('--output-file', '-o',
+              type=click.Path(file_okay=True, dir_okay=False),
               help="Location to save the output dictionary. If not provided, will print to stdout.")
-@click.option("--raw-input", "-raw-input",  # TODO: renamed from --rawinput/-rawinput
+@click.option("--raw-input",
               hidden=True)
 @append_copyright_to_help
 def new_way(config: str,

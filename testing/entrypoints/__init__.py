@@ -113,6 +113,7 @@ class TmpNoEx(_TmpPath):
     pass
 
 
+# TODO: Refactor to pytest tmp filesystem
 class TempFileSystem:
     """
     Given a dict of path -> path description (dir / file with content / na), creates
