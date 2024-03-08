@@ -206,6 +206,7 @@ def assert_called_properly(mock_func, expected_args: dict, args_normalizer):
          f"diff {args_diff(expected_args, actual_args)}")
 
 
+# TODO: refactor to use every command as a separate test case
 def run_test_case(
         cli_runner: CliRunner,
         file_system_config: List[_TmpPath],

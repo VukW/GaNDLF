@@ -24,7 +24,8 @@ def _optimize_model(model: str, config: Optional[str]):
               required=True,
               help="Path to the model file (ending in '.pth.tar') you wish to optimize.")
 @click.option('--config', '-c',
-              help="The configuration file (contains all the information related to the training/inference session).",
+              help="The configuration file (contains all the information related to the training/inference session)."
+                   "Arg value is used if no config in model is found.",
               required=False,
               type=click.Path(exists=True, file_okay=True, dir_okay=False))
 @append_copyright_to_help
@@ -61,7 +62,8 @@ def old_way():
         type=str,
         default=None,
         required=False,
-        help="The configuration file (contains all the information related to the training/inference session).",
+        help="The configuration file (contains all the information related to the training/inference session). "
+             "Arg value is used if no config in model is found.",
     )
 
     args = parser.parse_args()

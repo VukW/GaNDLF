@@ -23,6 +23,7 @@ test_file_system = [
     TmpFile("config.yaml", content="foo: bar"),
     TmpFile("output.json"),
     TmpNoEx("output_na.csv"),
+    TmpNoEx("path_na"),
 ]
 test_cases = [
     TestCase(
