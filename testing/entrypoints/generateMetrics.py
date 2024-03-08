@@ -1,12 +1,7 @@
-import os
-from unittest.mock import patch
-
 import pytest
 from click.testing import CliRunner
-from future.moves import sys
 
 from GANDLF.entrypoints.generateMetrics import new_way, old_way, _generate_metrics
-
 from testing.entrypoints import cli_runner, TestCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
 # This function is a place where a real logic is executed.
