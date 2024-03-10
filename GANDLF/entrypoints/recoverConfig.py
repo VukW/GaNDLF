@@ -20,6 +20,10 @@ def _recover_config(model_dir: Optional[str], mlcube: bool, output_file: str):
     else:
         search_dir = model_dir
 
+    print(f'{model_dir=}')
+    print(f'{mlcube=}')
+    print(f'{search_dir=}')
+    print(f'{output_file=}')
     result = recover_config(search_dir, output_file)
     assert result, "Config file recovery failed."
 
@@ -30,7 +34,6 @@ def _recover_config(model_dir: Optional[str], mlcube: bool, output_file: str):
               type=click.Path(exists=True, file_okay=False, dir_okay=True))
 @click.option('--mlcube', '-c',
               is_flag=True,
-              required=True,
               help="Pass this option to attempt to extract the config from the embedded model in a GaNDLF MLCube "
                    "(if any). Only useful in that context. If passed, model-dir param is ignored.")
 @click.option('--output-file', '-o',
@@ -65,10 +68,13 @@ def old_way():
         "-m",
         "--modeldir",
         metavar="",
-        default="",
         type=str,
         help="Path to the model directory.",
     )
+    # TODO: despite of `str` type, real value is never used (only checks if it is filled or not)
+    #  Thus, caveats:
+    #    * passing `--mlcube False` would still process it as mlcube;
+    #    * passing `--mlcube "" ` (with empty str) acts as non-mlcube
     parser.add_argument(
         "-c",
         "--mlcube",
@@ -81,6 +87,7 @@ def old_way():
         "--outputFile",
         metavar="",
         type=str,
+        required=True,
         help="Path to an output file where the config will be written.",
     )
 

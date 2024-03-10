@@ -80,8 +80,8 @@ def new_way(config: str,
             "instead of `gandlf_preprocess`. Note that in new CLI tool some params were renamed to snake-case:\n" +
             "  --inputdata to --input-data\n" +
             "  --labelPad to --label-pad\n" +
-            "  --applyaugs to --apply-augs\n" +
-            "  --cropzero to --crop-zero\n" +
+            "  --applyaugs to --apply-augs; it is flag now, i.e. no value accepted\n" +
+            "  --cropzero to --crop-zero;  it is flag now, i.e. no value accepted\n" +
             "`gandlf_preprocess` script would be deprecated soon.")
 def old_way():
     parser = argparse.ArgumentParser(

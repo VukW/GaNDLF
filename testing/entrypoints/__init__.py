@@ -215,13 +215,14 @@ def run_test_case(
         new_way: BaseCommand,
         old_way: Callable,
         old_script_name: str,
-        wrapper_func: Callable = None):
+        wrapper_func: Callable = None,
+        patched_return_value: Any = None):
     module_path, func_name = real_code_function_path.rsplit('.', 1)
     module = importlib.import_module(module_path)
     real_code_function = getattr(module, func_name)
 
     args_normalizer = ArgsExpander(real_code_function)
-    with patch(real_code_function_path) as mock_logic:
+    with patch(real_code_function_path, return_value=patched_return_value) as mock_logic:
 
         # tests that all click commands trigger execution with expected args
         for new_line in (case.new_way_lines or []):
