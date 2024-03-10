@@ -16,6 +16,12 @@ def _preprocess(config: str,
                 label_pad: str,
                 apply_augs: bool,
                 crop_zero: bool):
+    print(f"{config=}")
+    print(f"{input_data=}")
+    print(f"{output=}")
+    print(f"{label_pad=}")
+    print(f"{apply_augs=}")
+    print(f"{crop_zero=}")
     preprocess_and_save(
         data_csv=input_data,
         config_file=config,
@@ -35,8 +41,7 @@ def _preprocess(config: str,
               required=True,
               help="The configuration file (contains all the information related to the training/inference session),"
                    " this is read from 'output' during inference")
-@click.option('--input-data', '-i',  # TODO: check - really csv only fits?
-              # TODO: should we rename it to --input-path?
+@click.option('--input-data', '-i',  # TODO: mention pickled df also fits
               type=click.Path(exists=True, file_okay=True, dir_okay=False),
               required=True,
               help="Data csv file that is used for training/inference")
@@ -51,10 +56,10 @@ def _preprocess(config: str,
                    "Defaults to 'constant' [full list: https://numpy.org/doc/stable/reference/generated/numpy.pad.html]")
 @click.option('--apply-augs', '-a',
               is_flag=True,
-              help="If given, applies data augmentations during output creation")
-@click.option('--crop-zero', '-c',
+              help="If passed, applies data augmentations during output creation")
+@click.option('--crop-zero', '-z',
               is_flag=True,
-              help="If given, applies zero cropping during output creation.")
+              help="If passed, applies zero cropping during output creation.")
 @append_copyright_to_help
 def new_way(config: str,
             input_data: str,
@@ -118,6 +123,18 @@ def old_way():
         help="This specifies the padding strategy for the label when 'patch_sampler' is 'label'. Defaults to 'constant' [full list: https://numpy.org/doc/stable/reference/generated/numpy.pad.html]",
         required=False,
     )
+    # TODO: here is a big caveat. -a/-z require some additional value to be passed,
+    #  like `-a True`. However, __any__ passed string would be converted to True!
+    #  So this would disable flag:
+    #  > gandlf_preprocess -i .. -o .. -c ..
+    #  while all the following would enable flag:
+    #  > gandlf_preprocess -i .. -o .. -c .. -a True
+    #  > gandlf_preprocess -i .. -o .. -c .. -a False     <- !!!
+    #  > gandlf_preprocess -i .. -o .. -c .. -a false
+    #  > gandlf_preprocess -i .. -o .. -c .. -a 1
+    #  > gandlf_preprocess -i .. -o .. -c .. -a 0
+    #  > gandlf_preprocess -i .. -o .. -c .. -a f
+    #  > gandlf_preprocess -i .. -o .. -c .. -a blabla
     parser.add_argument(
         "-a",
         "--applyaugs",
@@ -128,7 +145,7 @@ def old_way():
         required=False,
     )
     parser.add_argument(
-        "-a",
+        "-z",
         "--cropzero",
         metavar="",
         type=bool,
