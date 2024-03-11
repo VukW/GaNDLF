@@ -12,14 +12,7 @@ OLD_SCRIPT_NAME = "gandlf_updateVersion"
 
 # these files would be either created temporarily for test execution,
 # or we ensure they do not exist
-test_file_system = [
-    TmpDire("model/"),
-    TmpFile("model.file"),
-    TmpFile("output.yaml"),
-    TmpDire("output/"),
-    TmpNoEx("output_na.yaml"),
-    TmpNoEx("path_na"),
-]
+test_file_system = []
 test_cases = [
     TestCase(
         should_succeed=True,
@@ -63,6 +56,5 @@ def test_case(cli_runner: CliRunner, case: TestCase):
         new_way=new_way,
         old_way=old_way,
         old_script_name=OLD_SCRIPT_NAME,
-        wrapper_func=None,
-        patched_return_value=True
+        wrapper_func=None
     )
