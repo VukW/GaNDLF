@@ -201,6 +201,15 @@ def assert_called_properly(mock_func, expected_args: dict, args_normalizer):
     executed_call = mock_func.mock_calls[0]
     actual_args = args_normalizer.normalize(args=executed_call.args,
                                             kwargs=executed_call.kwargs)
+    orig_args = expected_args
+    expected_args = orig_args.copy()
+    for arg, val in orig_args.items():
+        # if expected arg is `...` , then we do not care about its actual value
+        # just check the key presents in actual args
+        if val is Ellipsis:
+            assert arg in actual_args
+            expected_args[arg] = actual_args[arg]
+
     assert expected_args == actual_args, \
         (f"Function was not called with the expected arguments: {expected_args=} vs {actual_args=}, "
          f"diff {args_diff(expected_args, actual_args)}")
