@@ -5,7 +5,7 @@ import pytest
 from click.testing import CliRunner
 from future.moves import sys
 
-from GANDLF.entrypoints.optimize_model import new_way, old_way, _optimize_model
+from GANDLF.entrypoints.optimize_model import new_way, old_way
 
 from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
@@ -36,10 +36,6 @@ test_cases = [
             "--model model.pth.tar --config config.yaml",
             "-m model.pth.tar -c config.yaml",
         ],
-        wrapper_args={
-            "model": "model.pth.tar",
-            "config": "config.yaml",
-        },
         expected_args={
             "model_path": "model.pth.tar",
             "config_path": "config.yaml",
@@ -54,10 +50,6 @@ test_cases = [
         old_way_lines=[
             "-m model.pth.tar",
         ],
-        wrapper_args={
-            "model": "model.pth.tar",
-            "config": None,
-        },
         expected_args={
             "model_path": "model.pth.tar",
             "config_path": None,
@@ -97,5 +89,4 @@ def test_case(cli_runner: CliRunner, case: CliCase):
         new_way=new_way,
         old_way=old_way,
         old_script_name=OLD_SCRIPT_NAME,
-        wrapper_func=_optimize_model
     )

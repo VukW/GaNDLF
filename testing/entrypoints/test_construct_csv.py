@@ -3,7 +3,7 @@ import os
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.construct_csv import new_way, old_way, _construct_csv
+from GANDLF.entrypoints.construct_csv import new_way, old_way
 
 from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
@@ -38,13 +38,6 @@ test_cases = [
             "--inputDir input/ --channelsID _t1.nii.gz,_t2.nii.gz --labelID _seg.nii.gz --outputFile output.csv --relativizePaths True",
             "-i input/ -c _t1.nii.gz,_t2.nii.gz -l _seg.nii.gz -o output.csv -r True",
         ],
-        wrapper_args={
-            "input_dir": "input/",
-            "channels_id": "_t1.nii.gz,_t2.nii.gz",
-            "label_id": "_seg.nii.gz",
-            "output_file": "output.csv",
-            "relativize_paths_to_output": True
-        },
         expected_args={
             "inputDir": os.path.normpath("input/"),
             "channelsID": "_t1.nii.gz,_t2.nii.gz",
@@ -63,13 +56,6 @@ test_cases = [
             "-i input/ -c _t1.nii.gz,_t2.nii.gz -l _seg.nii.gz -o output.csv -r False",
             "-i input/ -c _t1.nii.gz,_t2.nii.gz -l _seg.nii.gz -o output.csv",
         ],
-        wrapper_args={
-            "input_dir": "input/",
-            "channels_id": "_t1.nii.gz,_t2.nii.gz",
-            "label_id": "_seg.nii.gz",
-            "output_file": "output.csv",
-            "relativize_paths_to_output": False
-        },
         expected_args={
             "inputDir": os.path.normpath("input/"),
             "channelsID": "_t1.nii.gz,_t2.nii.gz",
@@ -91,13 +77,6 @@ test_cases = [
             "-i input/ -c channels_str.yaml -l _seg.nii.gz -o output.csv",
             "-i input/ -c channels_list.yaml -l _seg.nii.gz -o output.csv",
         ],
-        wrapper_args={
-            "input_dir": "input/",
-            "channels_id": "channels_str.yaml",
-            "label_id": "_seg.nii.gz",
-            "output_file": "output.csv",
-            "relativize_paths_to_output": False
-        },
         expected_args={
             "inputDir": os.path.normpath("input/"),
             "channelsID": "_yaml1.gz,_yaml2.gz",
@@ -117,13 +96,6 @@ test_cases = [
             "-i input/ -c channels_labels.yaml -l _arg_no_use.gz -o output.csv",
             "-i input/ -c channels_labels.yaml -o output.csv",
         ],
-        wrapper_args={
-            "input_dir": "input/",
-            "channels_id": "channels_labels.yaml",
-            "label_id": "_yaml.gz",
-            "output_file": "output.csv",
-            "relativize_paths_to_output": False
-        },
         expected_args={
             "inputDir": os.path.normpath("input/"),
             "channelsID": "_yaml1.gz,_yaml2.gz",
@@ -145,13 +117,6 @@ test_cases = [
             "-i input/ -c channels_str.yaml -o output.csv",
             "-i input/ -c channels_list.yaml -o output.csv",
         ],
-        wrapper_args={
-            "input_dir": "input/",
-            "channels_id": "channels_str.yaml",
-            "label_id": None,
-            "output_file": "output.csv",
-            "relativize_paths_to_output": False
-        },
         expected_args={
             "inputDir": os.path.normpath("input/"),
             "channelsID": "_yaml1.gz,_yaml2.gz",
@@ -169,13 +134,6 @@ test_cases = [
         old_way_lines=[
             "-i input/ -c _t1.nii.gz,_t2.nii.gz -o output_na.csv",
         ],
-        wrapper_args={
-            "input_dir": "input/",
-            "channels_id": "_t1.nii.gz,_t2.nii.gz",
-            "label_id": None,
-            "output_file": "output_na.csv",
-            "relativize_paths_to_output": False
-        },
         expected_args={
             "inputDir": os.path.normpath("input/"),
             "channelsID": "_t1.nii.gz,_t2.nii.gz",
@@ -220,5 +178,4 @@ def test_case(cli_runner: CliRunner, case: CliCase):
         new_way=new_way,
         old_way=old_way,
         old_script_name=OLD_SCRIPT_NAME,
-        wrapper_func=_construct_csv
     )

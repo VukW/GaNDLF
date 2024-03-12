@@ -1,7 +1,7 @@
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.recover_config import new_way, old_way, _recover_config
+from GANDLF.entrypoints.recover_config import new_way, old_way
 from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
 # This function is a place where a real logic is executed.
@@ -34,11 +34,6 @@ test_cases = [
             "--modeldir model/ --outputFile output.yaml",
             "-m model/ -o output.yaml",
         ],
-        wrapper_args={
-            "model_dir": "model/",
-            "mlcube": False,
-            "output_file": "output.yaml"
-        },
         expected_args={
             "modelDir": "model/",
             "outputFile": "output.yaml",
@@ -56,11 +51,6 @@ test_cases = [
             "--mlcube true -o output.yaml",
             "-c true -o output.yaml",
         ],
-        wrapper_args={
-            "model_dir": None,
-            "mlcube": True,
-            "output_file": "output.yaml"
-        },
         expected_args={
             "modelDir": "/embedded_model/",
             "outputFile": "output.yaml",
@@ -75,11 +65,6 @@ test_cases = [
         old_way_lines=[
             "-m model/ -c true -o output.yaml",
         ],
-        wrapper_args={
-            "model_dir": "model/",
-            "mlcube": True,
-            "output_file": "output.yaml"
-        },
         expected_args={
             "modelDir": "/embedded_model/",
             "outputFile": "output.yaml",
@@ -94,11 +79,6 @@ test_cases = [
         old_way_lines=[
             "-m model/ -o output_na.yaml",
         ],
-        wrapper_args={
-            "model_dir": "model/",
-            "mlcube": False,
-            "output_file": "output_na.yaml"
-        },
         expected_args={
             "modelDir": "model/",
             "outputFile": "output_na.yaml",
@@ -140,6 +120,5 @@ def test_case(cli_runner: CliRunner, case: CliCase):
         new_way=new_way,
         old_way=old_way,
         old_script_name=OLD_SCRIPT_NAME,
-        wrapper_func=_recover_config,
         patched_return_value=True
     )

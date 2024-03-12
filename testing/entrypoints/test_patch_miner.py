@@ -1,7 +1,7 @@
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.patch_miner import new_way, old_way, _mine_patches
+from GANDLF.entrypoints.patch_miner import new_way, old_way
 from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
 # This function is a place where a real logic is executed.
@@ -33,11 +33,6 @@ test_cases = [
             "--input_CSV input.csv --output_path output/ --config config.yaml",
             "-i input.csv -o output/ -c config.yaml",
         ],
-        wrapper_args={
-            "input_path": "input.csv",
-            "config": "config.yaml",
-            "output_path": "output/",
-        },
         expected_args={
             "input_path": "input.csv",
             "config": "config.yaml",
@@ -53,11 +48,6 @@ test_cases = [
         old_way_lines=[
             "-i input.csv -o output/",
         ],
-        wrapper_args={
-            "input_path": "input.csv",
-            "config": None,
-            "output_path": "output/",
-        },
         expected_args={
             "input_path": "input.csv",
             "config": None,
@@ -73,11 +63,6 @@ test_cases = [
         old_way_lines=[
             "-i input.csv -o output_na/",
         ],
-        wrapper_args={
-            "input_path": "input.csv",
-            "config": None,
-            "output_path": "output_na/",
-        },
         expected_args={
             "input_path": "input.csv",
             "config": None,
@@ -126,5 +111,4 @@ def test_case(cli_runner: CliRunner, case: CliCase):
         new_way=new_way,
         old_way=old_way,
         old_script_name=OLD_SCRIPT_NAME,
-        wrapper_func=_mine_patches
     )

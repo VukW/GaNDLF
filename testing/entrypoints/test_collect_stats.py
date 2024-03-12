@@ -1,7 +1,7 @@
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.collect_stats import new_way, old_way, _collect_stats
+from GANDLF.entrypoints.collect_stats import new_way, old_way
 
 from . import cli_runner, CliCase, run_test_case, TmpNoEx, TmpDire, TmpFile
 
@@ -43,10 +43,6 @@ test_cases = [
             "--modeldir model_full/ --outputdir output/",
             "-m model_full/ -o output/",
         ],
-        wrapper_args={
-            "model_dir": "model_full/",
-            "output_dir": "output/",
-        },
         expected_args={
             "training_logs_path": "model_full/logs_training.csv",
             "validation_logs_path": "model_full/logs_validation.csv",
@@ -63,10 +59,6 @@ test_cases = [
         old_way_lines=[
             "-m model_no_test/ -o output/",
         ],
-        wrapper_args={
-            "model_dir": "model_no_test/",
-            "output_dir": "output/",
-        },
         expected_args={
             "training_logs_path": "model_no_test/logs_training.csv",
             "validation_logs_path": "model_no_test/logs_validation.csv",
@@ -83,10 +75,6 @@ test_cases = [
         old_way_lines=[
             "-m model_full/ -o output_na/",
         ],
-        wrapper_args={
-            "model_dir": "model_full/",
-            "output_dir": "output_na/",
-        },
         expected_args={
             "training_logs_path": "model_full/logs_training.csv",
             "validation_logs_path": "model_full/logs_validation.csv",
@@ -129,5 +117,4 @@ def test_case(cli_runner: CliRunner, case: CliCase):
         new_way=new_way,
         old_way=old_way,
         old_script_name=OLD_SCRIPT_NAME,
-        wrapper_func=_collect_stats
     )

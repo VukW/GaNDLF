@@ -75,11 +75,6 @@ class CliCase:
             (say, via `gandlf_patchMiner'):
             '--inputDir input/ -c config.yaml -m rad --outputFile output/'
             If skipped, old_way would not be tested.
-        wrapper_args: both new_way and old_way call the same wrapper (that, in turn, call a real code logic).
-            Wrapper func called with these args should behave exactly in the same way as new/old way commands,
-            i.e. call the final real logics code with `expected_args`.
-            Checking wrapper directly would help to calculate tests coverage for wrapper logic.
-            Required, if `should_succeed`.
         expected_args: dict or params that should be finally passed to real logics code.
             Required, if `should_succeed`.
 
@@ -87,7 +82,6 @@ class CliCase:
     should_succeed: bool = True
     new_way_lines: list[str] = None
     old_way_lines: list[str] = None
-    wrapper_args: dict = None
     expected_args: dict = None
 
 
@@ -224,7 +218,6 @@ def run_test_case(
         new_way: BaseCommand,
         old_way: Callable,
         old_script_name: str,
-        wrapper_func: Callable = None,
         patched_return_value: Any = None):
     module_path, func_name = real_code_function_path.rsplit('.', 1)
     module = importlib.import_module(module_path)
@@ -276,15 +269,3 @@ def run_test_case(
             except BaseException:
                 print(f"Test failed on the old case: {old_line}")
                 raise
-
-        # check that invoking wrapper directly works well also. Used for tests coverage
-        try:
-            mock_logic.reset_mock()
-            if wrapper_func and (case.wrapper_args is not None):
-                with TempFileSystem(file_system_config):
-                    wrapper_func(**case.wrapper_args)
-                assert_called_properly(mock_logic, case.expected_args, args_normalizer)
-
-        except BaseException:
-            print(f"Test failed for the wrapper: {wrapper_func=}, {case.wrapper_args}")
-            raise

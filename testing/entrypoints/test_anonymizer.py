@@ -2,7 +2,7 @@ import os.path
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.anonymizer import new_way, old_way, _anonymize_images
+from GANDLF.entrypoints.anonymizer import new_way, old_way
 
 from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
@@ -37,12 +37,6 @@ test_cases = [
             "-i . -c config.yaml -m rad -o  output/",
             "-i . -c config.yaml -o output/",
         ],
-        wrapper_args={
-            "input_dir": ".",
-            "output_file": "output/",
-            "config_path": "config.yaml",
-            "modality": "rad"
-        },
         expected_args={
             "input_path": os.path.normpath("."),
             "output_path": os.path.normpath("output/"),
@@ -59,12 +53,6 @@ test_cases = [
         old_way_lines=[
             "-i . -o path_na",
         ],
-        wrapper_args={
-            "input_dir": ".",
-            "output_file": "path_na",
-            "config_path": None,
-            "modality": "rad"
-        },
         expected_args={
             "input_path": os.path.normpath("."),
             "output_path": os.path.normpath("path_na"),
@@ -81,12 +69,6 @@ test_cases = [
         old_way_lines=[
             "-i . -o output.csv",
         ],
-        wrapper_args={
-            "input_dir": ".",
-            "output_file": "output.csv",
-            "config_path": None,
-            "modality": "rad"
-        },
         expected_args={
             "input_path": os.path.normpath("."),
             "output_path": os.path.normpath("output.csv"),
@@ -103,12 +85,6 @@ test_cases = [
         old_way_lines=[
             "-i . -m histo -o output.csv",
         ],
-        wrapper_args={
-            "input_dir": ".",
-            "output_file": "output.csv",
-            "config_path": None,
-            "modality": "histo"
-        },
         expected_args={
             "input_path": os.path.normpath("."),
             "output_path": os.path.normpath("output.csv"),
@@ -151,5 +127,4 @@ def test_case(cli_runner: CliRunner, case: CliCase):
         new_way=new_way,
         old_way=old_way,
         old_script_name=OLD_SCRIPT_NAME,
-        wrapper_func=_anonymize_images
     )

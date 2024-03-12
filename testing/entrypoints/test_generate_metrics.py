@@ -1,7 +1,7 @@
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.generate_metrics import new_way, old_way, _generate_metrics
+from GANDLF.entrypoints.generate_metrics import new_way, old_way
 from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
 # This function is a place where a real logic is executed.
@@ -39,11 +39,6 @@ test_cases = [
             "-i input.csv -o output.json -c config.yaml --rawinput 123321",
             "-i input.csv -o output.json -c config.yaml -rawinput 123321",
         ],
-        wrapper_args={
-            "input_data": "input.csv",
-            "config": "config.yaml",
-            "output_file": "output.json",
-        },
         expected_args={
             "input_csv": "input.csv",
             "config": "config.yaml",
@@ -59,11 +54,6 @@ test_cases = [
         old_way_lines=[
             "-i input.csv -c config.yaml",
         ],
-        wrapper_args={
-            "input_data": "input.csv",
-            "config": "config.yaml",
-            "output_file": None,
-        },
         expected_args={
             "input_csv": "input.csv",
             "config": "config.yaml",
@@ -79,11 +69,6 @@ test_cases = [
         old_way_lines=[
             "-i input.csv -o output_na.json -c config.yaml",
         ],
-        wrapper_args={
-            "input_data": "input.csv",
-            "config": "config.yaml",
-            "output_file": "output_na.json",
-        },
         expected_args={
             "input_csv": "input.csv",
             "config": "config.yaml",
@@ -130,5 +115,4 @@ def test_case(cli_runner: CliRunner, case: CliCase):
         new_way=new_way,
         old_way=old_way,
         old_script_name=OLD_SCRIPT_NAME,
-        wrapper_func=_generate_metrics
     )

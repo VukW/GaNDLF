@@ -1,7 +1,7 @@
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.preprocess import new_way, old_way, _preprocess
+from GANDLF.entrypoints.preprocess import new_way, old_way
 from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
 # This function is a place where a real logic is executed.
@@ -36,14 +36,6 @@ test_cases = [
             "-c config.yaml -i input.csv -o output/ -l constant -a True -z True",
             "-c config.yaml -i input.csv -o output/ -a True -z True",
         ],
-        wrapper_args={
-            "config": "config.yaml",
-            "input_data": "input.csv",
-            "output": "output/",
-            "label_pad": "constant",
-            "apply_augs": True,
-            "crop_zero": True
-        },
         expected_args={
             "config_file": "config.yaml",
             "data_csv": "input.csv",
@@ -65,14 +57,6 @@ test_cases = [
             # "-c config.yaml -i input.csv -o output/ -a False -z False",
             # "-c config.yaml -i input.csv -o output/ -a False -z False",
         ],
-        wrapper_args={
-            "config": "config.yaml",
-            "input_data": "input.csv",
-            "output": "output/",
-            "label_pad": "constant",
-            "apply_augs": False,
-            "crop_zero": False
-        },
         expected_args={
             "config_file": "config.yaml",
             "data_csv": "input.csv",
@@ -91,14 +75,6 @@ test_cases = [
         old_way_lines=[
             "-c config.yaml -i input.csv -o output/ -l mean",
         ],
-        wrapper_args={
-            "config": "config.yaml",
-            "input_data": "input.csv",
-            "output": "output/",
-            "label_pad": "mean",
-            "apply_augs": False,
-            "crop_zero": False
-        },
         expected_args={
             "config_file": "config.yaml",
             "data_csv": "input.csv",
@@ -117,14 +93,6 @@ test_cases = [
         old_way_lines=[
             "-i input.csv -o output_na/ -c config.yaml",
         ],
-        wrapper_args={
-            "config": "config.yaml",
-            "input_data": "input.csv",
-            "output": "output_na/",
-            "label_pad": "constant",
-            "apply_augs": False,
-            "crop_zero": False
-        },
         expected_args={
             "config_file": "config.yaml",
             "data_csv": "input.csv",
@@ -178,5 +146,4 @@ def test_case(cli_runner: CliRunner, case: CliCase):
         new_way=new_way,
         old_way=old_way,
         old_script_name=OLD_SCRIPT_NAME,
-        wrapper_func=_preprocess
     )

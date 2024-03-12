@@ -1,7 +1,7 @@
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.config_generator import new_way, old_way, _generate_config
+from GANDLF.entrypoints.config_generator import new_way, old_way
 
 from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
@@ -33,11 +33,6 @@ test_cases = [
             "--config config.yaml --strategy strategy.yaml --output output/",
             "-c config.yaml -s strategy.yaml -o output/",
         ],
-        wrapper_args={
-            "config": "config.yaml",
-            "strategy": "strategy.yaml",
-            "output": "output/"
-        },
         expected_args={
             "base_config_path": "config.yaml",
             "strategy_path": "strategy.yaml",
@@ -82,5 +77,4 @@ def test_case(cli_runner: CliRunner, case: CliCase):
         new_way=new_way,
         old_way=old_way,
         old_script_name=OLD_SCRIPT_NAME,
-        wrapper_func=_generate_config
     )

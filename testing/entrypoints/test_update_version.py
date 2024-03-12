@@ -1,8 +1,8 @@
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.update_version import new_way, old_way, _update_version
-from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
+from GANDLF.entrypoints.update_version import new_way, old_way
+from . import cli_runner, CliCase, run_test_case
 
 # This function is a place where a real logic is executed.
 # For tests, we replace it with mock up, and check if this function is called
@@ -56,5 +56,4 @@ def test_case(cli_runner: CliRunner, case: CliCase):
         new_way=new_way,
         old_way=old_way,
         old_script_name=OLD_SCRIPT_NAME,
-        wrapper_func=None
     )

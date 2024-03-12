@@ -1,7 +1,7 @@
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.run import new_way, old_way, _run
+from GANDLF.entrypoints.run import new_way, old_way
 from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
 # This function is a place where a real logic is executed.
@@ -49,16 +49,6 @@ test_cases = [
             "-c config.yaml -i input.csv -t True -m model/ -d cuda -rt True --rawinput blabla",
             "-c config.yaml -i input.csv -t True -m model/ -d cuda -rt True -rawinput blabla",
         ],
-        wrapper_args={
-            "config": "config.yaml",
-            "input_data": "input.csv",
-            "train_flag": True,
-            "model_dir": "model/",
-            "device": "cuda",
-            "reset_flag": True,
-            "resume_flag": False,
-            "output_path": None
-        },
         expected_args={
             "data_csv": "input.csv",
             "config_file": "config.yaml",
@@ -81,16 +71,6 @@ test_cases = [
             "-c config.yaml -i input.csv -t True -m model/ -d cuda --resume True",
             "-c config.yaml -i input.csv -t True -m model/ -d cuda -rm True",
         ],
-        wrapper_args={
-            "config": "config.yaml",
-            "input_data": "input.csv",
-            "train_flag": True,
-            "model_dir": "model/",
-            "device": "cuda",
-            "reset_flag": False,
-            "resume_flag": True,
-            "output_path": None
-        },
         expected_args={
             "data_csv": "input.csv",
             "config_file": "config.yaml",
@@ -111,16 +91,6 @@ test_cases = [
         old_way_lines=[
             "-c config.yaml -i input.csv -t False -m model/ -d cuda -o output/",
         ],
-        wrapper_args={
-            "config": "config.yaml",
-            "input_data": "input.csv",
-            "train_flag": False,
-            "model_dir": "model/",
-            "device": "cuda",
-            "reset_flag": False,
-            "resume_flag": False,
-            "output_path": "output/"
-        },
         expected_args={
             "data_csv": "input.csv",
             "config_file": "config.yaml",
@@ -142,16 +112,6 @@ test_cases = [
             "-c config.yaml -i input.csv -t True -d cuda -o output/",
             "-c config.yaml -i input.csv -t False -d cuda -o output/",
         ],
-        wrapper_args={
-            "config": "config.yaml",
-            "input_data": "input.csv",
-            "train_flag": False,
-            "model_dir": None,
-            "device": "cuda",
-            "reset_flag": False,
-            "resume_flag": False,
-            "output_path": "output/"
-        },
         expected_args={
             "data_csv": "input.csv",
             "config_file": "config.yaml",
@@ -184,16 +144,6 @@ test_cases = [
             "-c config.yaml -i input.csv -t True -m model/ -d cpu -o output/",
             "-c config.yaml -i input.csv -t False -m model/ -d cpu -o output/",
         ],
-        wrapper_args={
-            "config": "config.yaml",
-            "input_data": "input.csv",
-            "train_flag": True,
-            "model_dir": "model/",
-            "device": "cpu",
-            "reset_flag": False,
-            "resume_flag": False,
-            "output_path": "output/"
-        },
         expected_args={
             "data_csv": "input.csv",
             "config_file": "config.yaml",
@@ -213,16 +163,6 @@ test_cases = [
         old_way_lines=[
             "-c config.yaml -i input.csv -t True -m model/ -d cpu -o output/ -rt True -rm True",
         ],
-        wrapper_args={
-            "config": "config.yaml",
-            "input_data": "input.csv",
-            "train_flag": True,
-            "model_dir": "model/",
-            "device": "cpu",
-            "reset_flag": True,
-            "resume_flag": True,
-            "output_path": "output/"
-        },
         expected_args={
             "data_csv": "input.csv",
             "config_file": "config.yaml",
@@ -242,16 +182,6 @@ test_cases = [
         old_way_lines=[
             "-c config.yaml -i input/ -t True -m model/ -d cpu",
         ],
-        wrapper_args={
-            "config": "config.yaml",
-            "input_data": "input/",
-            "train_flag": True,
-            "model_dir": "model/",
-            "device": "cpu",
-            "reset_flag": False,
-            "resume_flag": False,
-            "output_path": None,
-        },
         expected_args={
             "data_csv": "input/data.csv",
             "config_file": "config.yaml",
@@ -271,16 +201,6 @@ test_cases = [
         old_way_lines=[
             "-c config.yaml -i train.csv,val.csv -t True -m model/ -d cpu",
         ],
-        wrapper_args={
-            "config": "config.yaml",
-            "input_data": "train.csv,val.csv",
-            "train_flag": True,
-            "model_dir": "model/",
-            "device": "cpu",
-            "reset_flag": False,
-            "resume_flag": False,
-            "output_path": None,
-        },
         expected_args={
             "data_csv": "train.csv,val.csv",
             "config_file": "config.yaml",
@@ -300,16 +220,6 @@ test_cases = [
         old_way_lines=[
             "-c config.yaml -i input.csv -t True -m model/ -d cpu -o output_na/",
         ],
-        wrapper_args={
-            "config": "config.yaml",
-            "input_data": "input.csv",
-            "train_flag": True,
-            "model_dir": "model/",
-            "device": "cpu",
-            "reset_flag": False,
-            "resume_flag": False,
-            "output_path": "output_na/"
-        },
         expected_args={
             "data_csv": "input.csv",
             "config_file": "config.yaml",
@@ -369,5 +279,4 @@ def test_case(cli_runner: CliRunner, case: CliCase):
         new_way=new_way,
         old_way=old_way,
         old_script_name=OLD_SCRIPT_NAME,
-        wrapper_func=_run
     )

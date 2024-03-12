@@ -3,7 +3,7 @@ import pickle
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.deploy import new_way, old_way, _deploy
+from GANDLF.entrypoints.deploy import new_way, old_way
 
 from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
@@ -63,16 +63,6 @@ test_cases = [
             "-r mlcube_root/ -o output/ " +
             "-e tmp_test_entrypoint.py",
         ],
-        wrapper_args={
-            "model": "model/",
-            "config": "config.yaml",
-            "target": "docker",
-            "mlcube_type": "model",
-            "mlcube_root": "mlcube_root/",
-            "output_dir": "output/",
-            "requires_gpu": True,
-            "entrypoint": "tmp_test_entrypoint.py"
-        },
         expected_args={
             "mlcubedir": "mlcube_root/",
             "outputdir": "output/",
@@ -172,16 +162,6 @@ test_cases = [
         old_way_lines=[
             "-m model/ -c config.yaml -t docker --mlcube-type model -r mlcube_root/ -o output/",
         ],
-        wrapper_args={
-            "model": "model/",
-            "config": "config.yaml",
-            "target": "docker",
-            "mlcube_type": "model",
-            "mlcube_root": "mlcube_root/",
-            "output_dir": "output/",
-            "requires_gpu": True,
-            "entrypoint": None
-        },
         expected_args={
             "mlcubedir": "mlcube_root/",
             "outputdir": "output/",
@@ -202,16 +182,6 @@ test_cases = [
         old_way_lines=[
             "-m model/ -t docker --mlcube-type model -r mlcube_root/ -o output/",
         ],
-        wrapper_args={
-            "model": "model/",
-            "config": "output/original_config.yml",
-            "target": "docker",
-            "mlcube_type": "model",
-            "mlcube_root": "mlcube_root/",
-            "output_dir": "output/",
-            "requires_gpu": True,
-            "entrypoint": None
-        },
         expected_args={
             "mlcubedir": "mlcube_root/",
             "outputdir": "output/",
@@ -235,16 +205,6 @@ test_cases = [
             # for model_type=metrics, model, config and entrypoint may be skipped
             "--mlcube-type metrics -t docker -r mlcube_root/ -o output/",
         ],
-        wrapper_args={
-            "model": None,
-            "config": None,
-            "target": "docker",
-            "mlcube_type": "metrics",
-            "mlcube_root": "mlcube_root/",
-            "output_dir": "output/",
-            "requires_gpu": True,
-            "entrypoint": None
-        },
         expected_args={
             "mlcubedir": "mlcube_root/",
             "outputdir": "output/",
@@ -328,16 +288,6 @@ test_cases = [
         old_way_lines=[
             "-m model/ -c config.yaml -t docker --mlcube-type model -r mlcube_root/ -o output/ -g False",
         ],
-        wrapper_args={
-            "model": "model/",
-            "config": "config.yaml",
-            "target": "docker",
-            "mlcube_type": "model",
-            "mlcube_root": "mlcube_root/",
-            "output_dir": "output/",
-            "requires_gpu": False,
-            "entrypoint": None
-        },
         expected_args={
             "mlcubedir": "mlcube_root/",
             "outputdir": "output/",
@@ -358,16 +308,6 @@ test_cases = [
         old_way_lines=[
             "-m model/ -c config.yaml -t docker --mlcube-type model -r mlcube_root/ -o output_na/",
         ],
-        wrapper_args={
-            "model": "model/",
-            "config": "config.yaml",
-            "target": "docker",
-            "mlcube_type": "model",
-            "mlcube_root": "mlcube_root/",
-            "output_dir": "output_na/",
-            "requires_gpu": True,
-            "entrypoint": None
-        },
         expected_args={
             "mlcubedir": "mlcube_root/",
             "outputdir": "output_na/",
@@ -392,6 +332,5 @@ def test_case(cli_runner: CliRunner, case: CliCase):
         new_way=new_way,
         old_way=old_way,
         old_script_name=OLD_SCRIPT_NAME,
-        wrapper_func=_deploy,
         patched_return_value=True
     )
