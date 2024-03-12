@@ -4,7 +4,7 @@ from click.testing import CliRunner
 
 from GANDLF.entrypoints.anonymizer import new_way, old_way, _anonymize_images
 
-from testing.entrypoints import cli_runner, TestCase, run_test_case, TmpDire, TmpFile, TmpNoEx
+from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
 # This function is a place where a real logic is executed.
 # For tests, we replace it with mock up, and check if this function is called
@@ -22,7 +22,7 @@ test_file_system = [
     TmpFile("output.csv", content="col1,col2\n123,456\n"),
 ]
 test_cases = [
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # full command
@@ -50,7 +50,7 @@ test_cases = [
             "modality": "rad"
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # tests that config is optional, and that output may not exist
@@ -72,7 +72,7 @@ test_cases = [
             "modality": "rad"
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # tests that output may be an existing file
@@ -94,7 +94,7 @@ test_cases = [
             "modality": "rad"
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # tests that modality 'histo' is supported also
@@ -116,7 +116,7 @@ test_cases = [
             "modality": "histo"
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=False,
         new_way_lines=[
             # tests that input should exist
@@ -142,7 +142,7 @@ test_cases = [
 
 
 @pytest.mark.parametrize("case", test_cases)
-def test_case(cli_runner: CliRunner, case: TestCase):
+def test_case(cli_runner: CliRunner, case: CliCase):
     run_test_case(
         cli_runner=cli_runner,
         file_system_config=test_file_system,

@@ -5,14 +5,14 @@ import pytest
 from click.testing import CliRunner
 from future.moves import sys
 
-from GANDLF.entrypoints.optimizeModel import new_way, old_way, _optimize_model
+from GANDLF.entrypoints.optimize_model import new_way, old_way, _optimize_model
 
-from testing.entrypoints import cli_runner, TestCase, run_test_case, TmpDire, TmpFile, TmpNoEx
+from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
 # This function is a place where a real logic is executed.
 # For tests, we replace it with mock up, and check if this function is called
 # with proper args for different cli commands
-MOCK_PATH = "GANDLF.entrypoints.optimizeModel.post_training_model_optimization"
+MOCK_PATH = "GANDLF.entrypoints.optimize_model.post_training_model_optimization"
 OLD_SCRIPT_NAME = "gandlf_optimizeModel"
 
 # these files would be either created temporarily for test execution,
@@ -24,7 +24,7 @@ test_file_system = [
     TmpNoEx("path_na"),
 ]
 test_cases = [
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # full command
@@ -45,7 +45,7 @@ test_cases = [
             "config_path": "config.yaml",
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # config is optional
@@ -63,7 +63,7 @@ test_cases = [
             "config_path": None,
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=False,
         new_way_lines=[
             # model is required
@@ -88,7 +88,7 @@ test_cases = [
 
 
 @pytest.mark.parametrize("case", test_cases)
-def test_case(cli_runner: CliRunner, case: TestCase):
+def test_case(cli_runner: CliRunner, case: CliCase):
     run_test_case(
         cli_runner=cli_runner,
         file_system_config=test_file_system,

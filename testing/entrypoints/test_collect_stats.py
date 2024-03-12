@@ -1,14 +1,14 @@
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.collectStats import new_way, old_way, _collect_stats
+from GANDLF.entrypoints.collect_stats import new_way, old_way, _collect_stats
 
-from testing.entrypoints import cli_runner, TestCase, run_test_case, TmpNoEx, TmpDire, TmpFile
+from . import cli_runner, CliCase, run_test_case, TmpNoEx, TmpDire, TmpFile
 
 # This function is a place where a real logic is executed.
 # For tests, we replace it with mock up, and check if this function is called
 # with proper args for different cli commands
-MOCK_PATH = "GANDLF.entrypoints.collectStats._read_data_and_plot"
+MOCK_PATH = "GANDLF.entrypoints.collect_stats._read_data_and_plot"
 OLD_SCRIPT_NAME = "gandlf_collectStats"
 
 # these files would be either created temporarily for test execution,
@@ -31,7 +31,7 @@ test_file_system = [
     TmpNoEx("path_na/"),
 ]
 test_cases = [
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # full command
@@ -54,7 +54,7 @@ test_cases = [
             "output_plot_path": "output/plot.png"
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # test that it works without testing log
@@ -74,7 +74,7 @@ test_cases = [
             "output_plot_path": "output/plot.png"
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # test that output folder may not exist
@@ -94,7 +94,7 @@ test_cases = [
             "output_plot_path": "output_na/plot.png"
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=False,
         new_way_lines=[
             # tests that input should exist
@@ -120,7 +120,7 @@ test_cases = [
 
 
 @pytest.mark.parametrize("case", test_cases)
-def test_case(cli_runner: CliRunner, case: TestCase):
+def test_case(cli_runner: CliRunner, case: CliCase):
     run_test_case(
         cli_runner=cli_runner,
         file_system_config=test_file_system,

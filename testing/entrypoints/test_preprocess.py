@@ -2,7 +2,7 @@ import pytest
 from click.testing import CliRunner
 
 from GANDLF.entrypoints.preprocess import new_way, old_way, _preprocess
-from testing.entrypoints import cli_runner, TestCase, run_test_case, TmpDire, TmpFile, TmpNoEx
+from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
 # This function is a place where a real logic is executed.
 # For tests, we replace it with mock up, and check if this function is called
@@ -21,7 +21,7 @@ test_file_system = [
     TmpNoEx("path_na"),
 ]
 test_cases = [
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # full command
@@ -53,7 +53,7 @@ test_cases = [
             "apply_zero_crop": True
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # tests flags (--apply-augs, --crop-zero)
@@ -82,7 +82,7 @@ test_cases = [
             "apply_zero_crop": False
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # tests --label-pad
@@ -108,7 +108,7 @@ test_cases = [
             "apply_zero_crop": False
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # output may not exist yet
@@ -134,7 +134,7 @@ test_cases = [
             "apply_zero_crop": False
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=False,
         new_way_lines=[
             # input, output and config are required
@@ -169,7 +169,7 @@ test_cases = [
 
 
 @pytest.mark.parametrize("case", test_cases)
-def test_case(cli_runner: CliRunner, case: TestCase):
+def test_case(cli_runner: CliRunner, case: CliCase):
     run_test_case(
         cli_runner=cli_runner,
         file_system_config=test_file_system,

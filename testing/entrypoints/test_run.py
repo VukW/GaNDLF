@@ -2,7 +2,7 @@ import pytest
 from click.testing import CliRunner
 
 from GANDLF.entrypoints.run import new_way, old_way, _run
-from testing.entrypoints import cli_runner, TestCase, run_test_case, TmpDire, TmpFile, TmpNoEx
+from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
 # This function is a place where a real logic is executed.
 # For tests, we replace it with mock up, and check if this function is called
@@ -30,7 +30,7 @@ test_file_system = [
 ]
 # No tests for weird combinations: train + output-path, inference + reset/resume, as behavior is undefined
 test_cases = [
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # full command except --resume, --output-path
@@ -70,7 +70,7 @@ test_cases = [
             "output_dir": None
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # --resume instead of --reset
@@ -102,7 +102,7 @@ test_cases = [
             "output_dir": None
         }
     ),
-    TestCase(  # inference mode + --output-path
+    CliCase(  # inference mode + --output-path
         should_succeed=True,
         new_way_lines=[
             "-c config.yaml -i input.csv --infer -m model/ -d cuda --output-path output/",
@@ -132,7 +132,7 @@ test_cases = [
             "output_dir": "output/"
         }
     ),
-    TestCase(  # check that `model_dir` can be skipped (used output instead)
+    CliCase(  # check that `model_dir` can be skipped (used output instead)
         should_succeed=True,
         new_way_lines=[
             "-c config.yaml -i input.csv --train -d cuda -o output/",
@@ -163,7 +163,7 @@ test_cases = [
             "output_dir": "output/"
         }
     ),
-    TestCase(  # check that both output + model cannot be empty simultaneously
+    CliCase(  # check that both output + model cannot be empty simultaneously
         should_succeed=False,
         new_way_lines=[
             "-c config.yaml -i input.csv --train -d cuda",
@@ -174,7 +174,7 @@ test_cases = [
             "-c config.yaml -i input.csv -t False -d cuda",
         ],
     ),
-    TestCase(  # check device
+    CliCase(  # check device
         should_succeed=True,
         new_way_lines=[
             "-c config.yaml -i input.csv --train -m model/ -d cpu -o output/",
@@ -205,7 +205,7 @@ test_cases = [
             "output_dir": "output/"
         }
     ),
-    TestCase(  # reset + resume simultaneously => disabling reset in favor of resume
+    CliCase(  # reset + resume simultaneously => disabling reset in favor of resume
         should_succeed=True,
         new_way_lines=[
             "-c config.yaml -i input.csv --train -m model/ -d cpu -o output/ -rt -rm",
@@ -234,7 +234,7 @@ test_cases = [
             "output_dir": "output/"
         }
     ),
-    TestCase(  # input data may point to folder with 'data.csv'
+    CliCase(  # input data may point to folder with 'data.csv'
         should_succeed=True,
         new_way_lines=[
             "-c config.yaml -i input/ --train -m model/ -d cpu",
@@ -263,7 +263,7 @@ test_cases = [
             "output_dir": None,
         }
     ),
-    TestCase(  # input data may point to comma-separated list of csvs
+    CliCase(  # input data may point to comma-separated list of csvs
         should_succeed=True,
         new_way_lines=[
             "-c config.yaml -i train.csv,val.csv --train -m model/ -d cpu",
@@ -292,7 +292,7 @@ test_cases = [
             "output_dir": None,
         }
     ),
-    TestCase(  # output-path may point to non-existent path
+    CliCase(  # output-path may point to non-existent path
         should_succeed=True,
         new_way_lines=[
             "-c config.yaml -i input.csv --train -m model/ -d cpu -o output_na/",
@@ -321,7 +321,7 @@ test_cases = [
             "output_dir": "output_na/"
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=False,
         new_way_lines=[
             # config, input-data, train/infer, device are required
@@ -360,7 +360,7 @@ test_cases = [
 
 
 @pytest.mark.parametrize("case", test_cases)
-def test_case(cli_runner: CliRunner, case: TestCase):
+def test_case(cli_runner: CliRunner, case: CliCase):
     run_test_case(
         cli_runner=cli_runner,
         file_system_config=test_file_system,

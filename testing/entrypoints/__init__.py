@@ -61,7 +61,7 @@ def cli_runner():
 
 
 @dataclass
-class TestCase:
+class CliCase:
     """
     Represent a specific case. All passed new way lines as well as old way lines should finally have exactly the same
     behavior and call a real logic function with `expected_args`.
@@ -219,7 +219,7 @@ def assert_called_properly(mock_func, expected_args: dict, args_normalizer):
 def run_test_case(
         cli_runner: CliRunner,
         file_system_config: List[_TmpPath],
-        case: TestCase,
+        case: CliCase,
         real_code_function_path: str,
         new_way: BaseCommand,
         old_way: Callable,

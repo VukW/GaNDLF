@@ -3,14 +3,14 @@ import os
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.constructCSV import new_way, old_way, _construct_csv
+from GANDLF.entrypoints.construct_csv import new_way, old_way, _construct_csv
 
-from testing.entrypoints import cli_runner, TestCase, run_test_case, TmpDire, TmpFile, TmpNoEx
+from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
 # This function is a place where a real logic is executed.
 # For tests, we replace it with mock up, and check if this function is called
 # with proper args for different cli commands
-MOCK_PATH = "GANDLF.entrypoints.constructCSV.writeTrainingCSV"
+MOCK_PATH = "GANDLF.entrypoints.construct_csv.writeTrainingCSV"
 OLD_SCRIPT_NAME = "gandlf_constructCSV"
 
 # these files would be either created temporarily for test execution,
@@ -26,7 +26,7 @@ test_file_system = [
     TmpNoEx("path_na"),
 ]
 test_cases = [
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # full command
@@ -53,7 +53,7 @@ test_cases = [
             "relativizePathsToOutput": True
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # -r by default False
@@ -78,7 +78,7 @@ test_cases = [
             "relativizePathsToOutput": False
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # channels may be read from yaml (str or list)
@@ -106,7 +106,7 @@ test_cases = [
             "relativizePathsToOutput": False
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # label-id can be defined in channels yaml also; arg value is skipped then
@@ -132,7 +132,7 @@ test_cases = [
             "relativizePathsToOutput": False
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # label-id can be skipped totally
@@ -160,7 +160,7 @@ test_cases = [
             "relativizePathsToOutput": False
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # output may not exist
@@ -184,7 +184,7 @@ test_cases = [
             "relativizePathsToOutput": False
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=False,
         new_way_lines=[
             # input should be passed & exist
@@ -211,7 +211,7 @@ test_cases = [
 
 
 @pytest.mark.parametrize("case", test_cases)
-def test_case(cli_runner: CliRunner, case: TestCase):
+def test_case(cli_runner: CliRunner, case: CliCase):
     run_test_case(
         cli_runner=cli_runner,
         file_system_config=test_file_system,

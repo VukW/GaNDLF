@@ -1,13 +1,13 @@
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.patchMiner import new_way, old_way, _mine_patches
-from testing.entrypoints import cli_runner, TestCase, run_test_case, TmpDire, TmpFile, TmpNoEx
+from GANDLF.entrypoints.patch_miner import new_way, old_way, _mine_patches
+from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
 # This function is a place where a real logic is executed.
 # For tests, we replace it with mock up, and check if this function is called
 # with proper args for different cli commands
-MOCK_PATH = "GANDLF.entrypoints.patchMiner.patch_extraction"
+MOCK_PATH = "GANDLF.entrypoints.patch_miner.patch_extraction"
 OLD_SCRIPT_NAME = "gandlf_patchMiner"
 
 # these files would be either created temporarily for test execution,
@@ -21,7 +21,7 @@ test_file_system = [
     TmpNoEx("path_na"),
 ]
 test_cases = [
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # full command
@@ -44,7 +44,7 @@ test_cases = [
             "output_path": "output/",
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # config is optional
@@ -64,7 +64,7 @@ test_cases = [
             "output_path": "output/",
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # output may not exist yet
@@ -84,7 +84,7 @@ test_cases = [
             "output_path": "output_na/",
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=False,
         new_way_lines=[
             # input and output are required
@@ -117,7 +117,7 @@ test_cases = [
 
 
 @pytest.mark.parametrize("case", test_cases)
-def test_case(cli_runner: CliRunner, case: TestCase):
+def test_case(cli_runner: CliRunner, case: CliCase):
     run_test_case(
         cli_runner=cli_runner,
         file_system_config=test_file_system,

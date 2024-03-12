@@ -1,13 +1,13 @@
 import pytest
 from click.testing import CliRunner
 
-from GANDLF.entrypoints.recoverConfig import new_way, old_way, _recover_config
-from testing.entrypoints import cli_runner, TestCase, run_test_case, TmpDire, TmpFile, TmpNoEx
+from GANDLF.entrypoints.recover_config import new_way, old_way, _recover_config
+from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
 # This function is a place where a real logic is executed.
 # For tests, we replace it with mock up, and check if this function is called
 # with proper args for different cli commands
-MOCK_PATH = "GANDLF.entrypoints.recoverConfig.recover_config"
+MOCK_PATH = "GANDLF.entrypoints.recover_config.recover_config"
 OLD_SCRIPT_NAME = "gandlf_preprocess"
 
 # these files would be either created temporarily for test execution,
@@ -21,7 +21,7 @@ test_file_system = [
     TmpNoEx("path_na"),
 ]
 test_cases = [
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # full command
@@ -44,7 +44,7 @@ test_cases = [
             "outputFile": "output.yaml",
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # mlcube way
@@ -66,7 +66,7 @@ test_cases = [
             "outputFile": "output.yaml",
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # tests model is ignored when mlcube is passed
@@ -85,7 +85,7 @@ test_cases = [
             "outputFile": "output.yaml",
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # tests output may not exist
@@ -104,7 +104,7 @@ test_cases = [
             "outputFile": "output_na.yaml",
         }
     ),
-    TestCase(
+    CliCase(
         should_succeed=False,
         new_way_lines=[
             # output is required
@@ -131,7 +131,7 @@ test_cases = [
 
 
 @pytest.mark.parametrize("case", test_cases)
-def test_case(cli_runner: CliRunner, case: TestCase):
+def test_case(cli_runner: CliRunner, case: CliCase):
     run_test_case(
         cli_runner=cli_runner,
         file_system_config=test_file_system,

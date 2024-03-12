@@ -5,7 +5,7 @@ from click.testing import CliRunner
 
 from GANDLF.entrypoints.deploy import new_way, old_way, _deploy
 
-from testing.entrypoints import cli_runner, TestCase, run_test_case, TmpDire, TmpFile, TmpNoEx
+from . import cli_runner, CliCase, run_test_case, TmpDire, TmpFile, TmpNoEx
 
 # This function is a place where a real logic is executed.
 # For tests, we replace it with mock up, and check if this function is called
@@ -33,7 +33,7 @@ test_file_system = [
 test_cases = [
     # =======================
     # Full command
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # full command
@@ -86,7 +86,7 @@ test_cases = [
     ),
     # =================
     # model-type checks
-    TestCase(
+    CliCase(
         should_succeed=False,
         new_way_lines=[
             # model_type is required and does not accept random values
@@ -101,7 +101,7 @@ test_cases = [
 
     # ==================
     # Model MLCube
-    TestCase(
+    CliCase(
         should_succeed=False,
         new_way_lines=[
             # for model_type=model everything except entrypoint and config is required
@@ -163,7 +163,7 @@ test_cases = [
             # "--mlcube-type model -m model/ -c config.yaml -t docker -r mlcube_root/ -o output/ -e empty_folder/",
         ]
     ),
-    TestCase(  # Model + entrypoint
+    CliCase(  # Model + entrypoint
         should_succeed=True,
         new_way_lines=[
             # for model_type=model entrypoint is optional
@@ -193,7 +193,7 @@ test_cases = [
             "requires_gpu": True
         }
     ),
-    TestCase(  # Model + config
+    CliCase(  # Model + config
         should_succeed=True,
         new_way_lines=[
             # for model_type=model config may be skipped; is restored from model then (`parameters.pkl`)
@@ -225,7 +225,7 @@ test_cases = [
     ),
     # ================
     # Metrics MLCube
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # for model_type=metrics, model, config and entrypoint may be skipped
@@ -257,7 +257,7 @@ test_cases = [
         }
 
     ),
-    TestCase(
+    CliCase(
         should_succeed=False,
         new_way_lines=[
             # for model_type=metrics, target, mlcube_root and output are required
@@ -319,7 +319,7 @@ test_cases = [
     ),
     # ===============
     # Other options: requires_gpu
-    TestCase(
+    CliCase(
         should_succeed=True,
         new_way_lines=[
             # gpu may be disabled by passing --no-gpu
@@ -349,7 +349,7 @@ test_cases = [
             "requires_gpu": False
         }
     ),
-    TestCase(  # output folder may not exist (would be created)
+    CliCase(  # output folder may not exist (would be created)
         should_succeed=True,
         new_way_lines=[
             # gpu may be disabled by passing --no-gpu
@@ -383,7 +383,7 @@ test_cases = [
 
 
 @pytest.mark.parametrize("case", test_cases)
-def test_case(cli_runner: CliRunner, case: TestCase):
+def test_case(cli_runner: CliRunner, case: CliCase):
     run_test_case(
         cli_runner=cli_runner,
         file_system_config=test_file_system,
@@ -392,5 +392,6 @@ def test_case(cli_runner: CliRunner, case: TestCase):
         new_way=new_way,
         old_way=old_way,
         old_script_name=OLD_SCRIPT_NAME,
-        wrapper_func=_deploy
+        wrapper_func=_deploy,
+        patched_return_value=True
     )
